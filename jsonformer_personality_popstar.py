@@ -4,7 +4,7 @@
 # SPDX-License-Identifier: MIT
 
 # pip install git+https://github.com/V-Sekai/jsonformer.git
-# pip install accelerate transformers bitsandbytes optimum opentelemetry-api opentelemetry-sdk opentelemetry-exporter-richconsole
+# pip install accelerate transformers bitsandbytes optimum opentelemetry-api opentelemetry-sdk opentelemetry-exporter-richconsole rich
 # micromamba install cudatoolkit -c conda-forge
 # pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
@@ -147,18 +147,31 @@ def break_apart_schema(schema, parent_required=None):
 
     return result
 
-prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
-
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import (
-        ConsoleSpanExporter,
-        SimpleSpanProcessor,)
+from opentelemetry.exporter.richconsole import RichConsoleSpanExporter
 
-trace.set_tracer_provider(TracerProvider())
+from opentelemetry.sdk.trace.export import BatchSpanProcessor
+
+import logging
+
+logger = logging.getLogger('custom_logger')
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler('output.log')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+logger.propagate = False
+
+
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.semconv.resource import ResourceAttributes
+
+resource = Resource.create({ResourceAttributes.SERVICE_NAME: "service_vtuber_generator"})
 tracer = trace.get_tracer(__name__)
+trace.set_tracer_provider(TracerProvider(resource=resource))
 
-span_processor = SimpleSpanProcessor(ConsoleSpanExporter())
+span_processor = BatchSpanProcessor(RichConsoleSpanExporter())
 trace.get_tracer_provider().add_span_processor(span_processor)
 
 merged_data = {}
@@ -167,17 +180,21 @@ separated_schema = break_apart_schema(schema)
 with tracer.start_as_current_span("break_apart_schema"):
     separated_schema = break_apart_schema(schema)
 
+prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
+
+logger.info(prompt)
+
 for new_schema in separated_schema:
     with tracer.start_as_current_span("process_new_schema"):
-        jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=2048)
+        jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
 
         with tracer.start_as_current_span("jsonformer_generate"):
             generated_data = jsonformer()
-            print(generated_data)
+            logger.info(generated_data)
 
         with tracer.start_as_current_span("merge_generated_data"):
             for key, value in generated_data.items():
                 merged_data[key] = value
 
 with tracer.start_as_current_span("print_merged_data"):
-    print(merged_data)
+    logger.info(merged_data)
