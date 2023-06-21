@@ -23,7 +23,7 @@ tokenizer = AutoTokenizer.from_pretrained(model_name)
 name_schema = {
   "type": "string",
   "description": "The name of the VTuber, which can be a combination of real or fictional words.",
-  "minLength": 250
+  "minLength": 2
 }
 
 avatar_schema = {
@@ -32,36 +32,25 @@ avatar_schema = {
   "description": "A 2D or 3D digital representation of the VTuber, often designed with unique features and characteristics."
 }
 
-personality_schema = {
-  "type": "object",
-  "properties": {
-    "uniqueIdentifier": {
-      "type": "string",
-      "description": "The unique identifier for the personality.",
-      "minLength": 3,
-      "maxLength": 16
-    },
-    "knowledge": {
-      "type": "string",
-      "description": "The specific area of expertise or knowledge of the personality.",
-      "minLength": 250
-    },
-    "context": {
-      "type": "object",
-      "properties": {
-        "skills": {
-          "type": "array",
-          "items": {
-            "type": "string"
-          },
-          "description": "A list of skills possessed by the personality.",
-          "minItems": 1
-        }
-      },
-      "required": ["skills"]
-    }
+uniqueIdentifier_schema = {
+  "type": "string",
+  "description": "The unique identifier for the personality.",
+  "minLength": 3,
+  "maxLength": 16
+}
+
+knowledge_schema = {
+  "type": "string",
+  "description": "The specific area of expertise or knowledge of the personality.",
+}
+
+skills_schema = {
+  "type": "array",
+  "items": {
+    "type": "string"
   },
-  "required": ["uniqueIdentifier", "knowledge", "context"]
+  "description": "A list of skills possessed by the personality.",
+  "minItems": 1
 }
 
 voice_schema = {
@@ -80,7 +69,6 @@ backstory_schema = {
     "relationships"
   ],
   "description": "A fictional background story for the VTuber, which can include details about their origin, history, and motivations.",
-  "minLength": 250
 }
 
 content_schema = {
@@ -98,7 +86,6 @@ platform_schema = {
 fanbase_schema = {
   "type": "string",
   "description": "The community of fans who follow and support the VTuber's content.",
-  "minLength": 250
 }
 
 collaborations_schema = {
@@ -114,35 +101,47 @@ merchandise_schema = {
   "enum": ["clothing", "accessories", "digital goods"],
   "description": "Any physical or digital merchandise related to the VTuber, such as clothing, accessories, or digital goods."
 }
-from jsonformer import Jsonformer
 
-subschemas = [
-  name_schema,
-  avatar_schema,
-  personality_schema,
-  voice_schema,
-  backstory_schema,
-  content_schema,
-  platform_schema,
-  fanbase_schema,
-  collaborations_schema,
-  merchandise_schema
-]
+subschemas = {
+    "name": name_schema,
+    "avatar": avatar_schema,
+    "uniqueIdentifier": uniqueIdentifier_schema,
+    "knowledge": knowledge_schema,
+    "skills": skills_schema,
+    "voice": voice_schema,
+    "backstory": backstory_schema,
+    "content": content_schema,
+    "platform": platform_schema,
+    "fanbase": fanbase_schema,
+    "collaborations": collaborations_schema,
+    "merchandise": merchandise_schema
+}
 
 prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
 
-# Combine the subschemas and call jsonformer
-for schema in subschemas:
+def generate_data(property_name, schema):
     json_schema = {
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "properties": {
-            "property_name": schema
+            "name": {
+                "type": "string"
+            },
+            property_name: schema
         },
-        "required": ["property_name"]
+        "required": ["name", property_name]
     }
 
-    # Call jsonformer
-    jsonformer = Jsonformer(model, tokenizer, json_schema, prompt)
-    generated_data = jsonformer()
+    jsonformer = Jsonformer(model, tokenizer, json_schema, prompt, max_string_token_length=250)
+    return jsonformer()
+
+merged_data = {}
+for property_name, schema in subschemas.items():
+    generated_data = generate_data(property_name, schema)
     print(generated_data)
+
+    for key, value in generated_data.items():
+        merged_data[key] = value
+
+print("Merged Data:")
+print(merged_data)
