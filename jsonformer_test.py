@@ -58,35 +58,37 @@ model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 schema = {
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "properties": {
-        "objectExample": {
-            "type": "object",
-            "description": "An example object with two keys: key1 and key2",
-            "properties": {
-                "key1": {"type": "string", "description": "A string value"},
-                "key2": {"type": "number", "description": "A number value"},
-            },
-            "required": ["key1", "key2"],
-        },
-        "arrayExample": {
-            "type": "array",
-            "description": "An example array with two items: a string and an integer",
-            "items": [
-                {"type": "string", "description": "A string value"},
-                {"type": "integer", "description": "An integer value"},
-            ],
-            "minItems": 2,
-            "maxItems": 2,
-        },
-        "constantExample": {
-            "type": "string",
-            "const": "fixedValue",
-            "description": "A constant string with a fixed value",
-        },
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "Avatar Prop",
+  "type": "object",
+  "properties": {
+    "id": {
+      "type": "integer",
+      "description": "Unique identifier for the avatar prop."
     },
-    "required": ["objectExample", "arrayExample", "constantExample"],
+    "name": {
+      "type": "string",
+      "description": "Name of the avatar prop."
+    },
+    "description": {
+      "type": "string",
+      "description": "Description of the avatar prop."
+    },
+    "category": {
+      "type": "string",
+      "description": "Category of the avatar prop."
+    },
+    "imageUrl": {
+      "type": "string",
+      "format": "uri",
+      "description": "URL of the image representing the avatar prop."
+    },
+    "price": {
+      "type": "number",
+      "description": "Price of the avatar prop."
+    }
+  },
+  "required": ["id", "name", "category", "imageUrl", "price"]
 }
 
 
@@ -159,24 +161,13 @@ def process_prompts(prompts):
                 logger.debug(f"process_new_schema: {new_schema}")
 
             with tracer.start_as_current_span("jsonformer_generate"):
-                try:
-                    generated_data = jsonformer()
-                    logger.info(f"jsonformer_generate: {generated_data}")
-                except ValueError as e:
-                    logger.error(f"Validator is invalid: {e}")
-                    continue
+                generated_data = jsonformer()
+                logger.info(f"jsonformer_generate: {generated_data}")
 
             for key, value in generated_data.items():
                 merged_data[key] = value
 
 input_list = ["""
-{
-  "objectExample": {
-    "key1": "value1",
-    "key2": 123
-  },
-  "arrayExample": ["exampleString", 456],
-  "constantExample": "fixedValue"
-}
+Generate a wand.
 """]
 process_prompts(input_list)
