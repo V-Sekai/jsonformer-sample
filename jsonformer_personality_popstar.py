@@ -151,6 +151,7 @@ prompt = """Gura is a friendly, mischievous shark with a generally amiable perso
 merged_data = {}
 separated_schema = break_apart_schema(schema)
 for new_schema in separated_schema:
+    print(new_schema)
     jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=2048)
     generated_data = jsonformer()
     print(generated_data)
