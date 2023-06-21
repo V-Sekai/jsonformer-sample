@@ -24,80 +24,33 @@ json_schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
-    "personalities": {
-      "type": "array",
-      "items": {
-        "type": "object",
-        "properties": {
-          "agent": {
-            "type": "string",
-            "description": "The unique identifier for the AI robot assistant."
+    "agent": {
+      "type": "string",
+      "description": "The unique identifier for the AI robot assistant."
+    },
+    "knowledge": {
+      "type": "string",
+      "description": "The specific area of expertise or knowledge of the AI robot assistant."
+    },
+    "context": {
+      "type": "object",
+      "properties": {
+        "technical_skills": {
+          "type": "array",
+          "items": {
+            "type": "string"
           },
-          "passion": {
-            "type": "string",
-            "description": "The main interest or passion of the AI robot assistant."
-          },
-          "dream": {
-            "type": "string",
-            "description": "The ultimate goal or aspiration of the AI robot assistant."
-          },
-          "priority": {
-            "type": "string",
-            "description": "The primary responsibility or focus of the AI robot assistant."
-          },
-          "knowledge": {
-            "type": "string",
-            "description": "The specific area of expertise or knowledge of the AI robot assistant."
-          },
-          "duty": {
-            "type": "string",
-            "description": "The guiding principle or approach of the AI robot assistant in fulfilling its responsibilities."
-          },
-          "context": {
-            "type": "object",
-            "properties": {
-              "technical_skills": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "A list of technical skills possessed by the AI robot assistant."
-              },
-              "passion": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "A list of passions or interests related to the AI robot assistant's dream."
-              },
-              "priority": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "A list of priorities or areas of focus for the AI robot assistant."
-              },
-              "duty": {
-                "type": "array",
-                "items": {
-                  "type": "string"
-                },
-                "description": "A list of duties or responsibilities in the context of the AI robot assistant's role."
-              }
-            },
-            "required": ["technical_skills", "passion", "priority", "duty"]
-          }
-        },
-        "required": ["agent", "passion", "dream", "priority", "knowledge", "duty", "context"]
-      }
+          "description": "A list of technical skills possessed by the AI robot assistant."
+        }
+      },
+      "required": ["technical_skills"]
     }
   },
-  "required": ["personalities"]
+  "required": ["agent", "knowledge", "context"]
 }
 
-
 prompt = (
-    """You are a character designer generate 4 different personalities for these popstars."""
+    """You are a character designer generate 4 different personalities for these superheros."""
 )
 
 jsonformer = Jsonformer(model, tokenizer, json_schema, prompt)
