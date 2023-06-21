@@ -19,6 +19,7 @@ model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torc
 model = BetterTransformer.transform(model)
 
 schema = {
+  "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
     "name": {
@@ -131,6 +132,7 @@ def break_apart_schema(schema, parent_required=None):
             continue
 
         property_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
             "type": "object",
             "properties": {
                 key: value
@@ -144,10 +146,11 @@ def break_apart_schema(schema, parent_required=None):
 
     return result
 
-prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
+prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead. Follow the json schema."""
 
 merged_data = {}
-for new_schema in break_apart_schema(schema):
+separated_schema = break_apart_schema(schema)
+for new_schema in separated_schema:
     jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
     generated_data = jsonformer()
     print(generated_data)
