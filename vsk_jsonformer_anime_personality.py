@@ -3,6 +3,7 @@
 # vsk_jsonformer_anime_personality.py
 # SPDX-License-Identifier: MIT
 
+# pip install git+https://github.com/V-Sekai/jsonformer.git
 # pip install accelerate transformers accelerate bitsandbytes optimum
 # micromamba install cudatoolkit -c conda-forge
 # pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
