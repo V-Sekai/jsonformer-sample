@@ -204,7 +204,6 @@ def get_user_input():
 
 
 def process_prompts(prompts):
-    merged_data = {}
     for prompt in prompts:
         logger.info(f"process_prompt: {prompt}")
 
@@ -219,68 +218,55 @@ def process_prompts(prompts):
         for key, value in generated_data.items():
             merged_data[key] = value
 
-    logger.info(f"merged_data: {merged_data}")
-
 input_list = ["""
 {
-  "name": "Steve Jobs",
-  "birthDate": "1955-02-24",
-  "deathDate": "2011-10-05",
+  "name": "Barack Obama",
+  "birthDate": "1961-08-04",
   "nationality": "American",
   "occupations": [
-    "business magnate",
-    "inventor",
-    "investor"
+    "lawyer",
+    "professor",
+    "politician"
   ],
-  "companies": [
+  "politicalCareer": {
+    "positions": [
+      {
+        "title": "Illinois State Senator",
+        "years": "1997-2004"
+      },
+      {
+        "title": "United States Senator",
+        "state": "Illinois",
+        "years": "2005-2008"
+      },
+      {
+        "title": "44th President of the United States",
+        "years": "2009-2017"
+      }
+    ],
+    "party": "Democratic"
+  },
+  "education": [
     {
-      "name": "Apple",
-      "roles": ["co-founder", "chairman", "CEO"]
+      "institution": "Occidental College",
+      "years": "1979-1981"
     },
     {
-      "name": "Pixar",
-      "roles": ["chairman", "majority shareholder"]
+      "institution": "Columbia University",
+      "degree": "Bachelor of Arts",
+      "major": "Political Science",
+      "year": 1983
     },
     {
-      "name": "The Walt Disney Company",
-      "roles": ["board of directors"]
-    },
-    {
-      "name": "NeXT",
-      "roles": ["founder", "chairman", "CEO"]
+      "institution": "Harvard Law School",
+      "degree": "Juris Doctor",
+      "year": 1991
     }
   ],
-  "contributions": [
-    "personal computer revolution",
-    "Apple I personal computer",
-    "Apple II microcomputer",
-    "Xerox Alto",
-    "Apple Lisa",
-    "Macintosh",
-    "Apple LaserWriter"
-  ],
   "personalLife": {
-    "birthPlace": "San Francisco",
-    "parents": {
-      "father": "Syrian",
-      "mother": "German-American"
-    },
-    "adoption": true,
-    "education": [
-      {
-        "institution": "Reed College",
-        "year": 1972,
-        "withdrawn": true
-      }
-    ],
-    "travels": [
-      {
-        "country": "India",
-        "year": 1974,
-        "purpose": "seeking enlightenment"
-      }
-    ],
-    "religion": "Zen Buddhism"
+    "birthPlace": "Honolulu, Hawaii",
+    "spouse": "Michelle Obama",
+    "children": ["Malia Obama", "Sasha Obama"]
   }
 }
 """]
