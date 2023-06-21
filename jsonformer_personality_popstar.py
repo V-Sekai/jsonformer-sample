@@ -8,15 +8,14 @@
 # micromamba install cudatoolkit -c conda-forge
 # pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
+from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonformer import Jsonformer
 from optimum.bettertransformer import BetterTransformer
-from transformers import T5Tokenizer, T5ForConditionalGeneration
+import torch
 
-model_name = "philschmid/flan-t5-xxl-sharded-fp16"
-tokenizer = T5Tokenizer.from_pretrained(model_name)
-model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto")
-model.config.use_cache = True
-
+model_name = "togethercomputer/RedPajama-INCITE-7B-Base"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=torch.float16, load_in_8bit=True)
 model = BetterTransformer.transform(model)
 
 schema = {
@@ -151,14 +150,6 @@ def break_apart_schema(schema, parent_required=None):
 prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
 
 
-merged_data = {}
-for new_schema in break_apart_schema(schema):
-    jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
-    generated_data = jsonformer()
-    print(generated_data)
-
-    for key, value in generated_data.items():
-        merged_data[key] = value
-
-print("Merged Data:")
-print(merged_data)
+jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=2048)
+generated_data = jsonformer()
+print(generated_data)
