@@ -44,10 +44,12 @@ json_schema = {
 }
 
 prompt = (
-    """Generate a new VTuber personality following this json schema: """
+    """Generate a new personality following this json schema: """
 )
 
 jsonformer = Jsonformer(model, tokenizer, json_schema, prompt)
 generated_data = jsonformer()
 
 print(generated_data)
+# Example output.
+# {'agent': 'Jerry', 'personality': 'cheerful', 'defaultMessage': 'Hello World!'}
