@@ -27,7 +27,8 @@ json_schema = {
   "properties": {
     "name": {
       "type": "string",
-      "description": "The name of the VTuber, which can be a combination of real or fictional words."
+      "description": "The name of the VTuber, which can be a combination of real or fictional words.",
+      "minLength": 250
     },
     "avatar": {
       "type": "string",
@@ -39,11 +40,14 @@ json_schema = {
       "properties": {
         "uniqueIdentifier": {
           "type": "string",
-          "description": "The unique identifier for the personality."
+          "description": "The unique identifier for the personality.",
+          "minLength": 3,
+          "maxLength": 16
         },
         "knowledge": {
           "type": "string",
-          "description": "The specific area of expertise or knowledge of the personality."
+          "description": "The specific area of expertise or knowledge of the personality.",
+          "minLength": 250
         },
         "context": {
           "type": "object",
@@ -53,7 +57,8 @@ json_schema = {
               "items": {
                 "type": "string"
               },
-              "description": "A list of skills possessed by the personality."
+              "description": "A list of skills possessed by the personality.",
+              "minItems": 1
             }
           },
           "required": ["skills"]
@@ -68,7 +73,8 @@ json_schema = {
     },
     "backstory": {
       "type": "string",
-      "description": "A fictional background story for the VTuber, which can include details about their origin, history, and motivations."
+      "description": "A fictional background story for the VTuber, which can include details about their origin, history, and motivations.",
+      "minLength": 250
     },
     "content": {
       "type": "string",
@@ -82,14 +88,16 @@ json_schema = {
     },
     "fanbase": {
       "type": "string",
-      "description": "The community of fans who follow and support the VTuber's content."
+      "description": "The community of fans who follow and support the VTuber's content.",
+      "minLength": 250
     },
     "collaborations": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Any collaborations the VTuber has done with other creators, both virtual and non-virtual."
+      "description": "Any collaborations the VTuber has done with other creators, both virtual and non-virtual.",
+      "minItems": 1
     },
     "merchandise": {
       "type": "string",
@@ -100,16 +108,15 @@ json_schema = {
   "required": ["name", "avatar", "personality", "voice", "backstory", "content", "platform", "fanbase", "collaborations", "merchandise"]
 }
 
-
 vtuber_names = [
     "Alyssa Hartfield",
     "Cameron Oakley",
-    "Evelyn Blackwood",
-    "Jordan Fairchild",
-    "Morgan Westfall",
-    "Riley Stonebridge",
-    "Taylor Greenleaf",
-    "Alexis Ironwood"
+    # "Evelyn Blackwood",
+    # "Jordan Fairchild",
+    # "Morgan Westfall",
+    # "Riley Stonebridge",
+    # "Taylor Greenleaf",
+    # "Alexis Ironwood"
 ]
 
 for name in vtuber_names:
