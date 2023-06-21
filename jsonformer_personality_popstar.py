@@ -96,13 +96,6 @@ schema = {
     },
     "backstory": {
       "type": "string",
-      "enum": [
-        "origin",
-        "history",
-        "motivations",
-        "adventures",
-        "relationships"
-      ],
       "description": "A fictional background story for the VTuber, which can include details about their origin, history, and motivations."
     },
     "content": {
@@ -112,7 +105,7 @@ schema = {
     },
     "platform": {
       "type": "string",
-      "enum": ["YouTube", "Twitch"],
+      "enum": ["YouTube", "Twitch", "Other"],
       "description": "The primary platform where the VTuber shares their content, such as YouTube, Twitch, or other streaming services."
     },
     "fanbase": {
@@ -220,54 +213,38 @@ def process_prompts(prompts):
 
 input_list = ["""
 {
-  "name": "Barack Obama",
-  "birthDate": "1961-08-04",
-  "nationality": "American",
-  "occupations": [
-    "lawyer",
-    "professor",
-    "politician"
-  ],
-  "politicalCareer": {
-    "positions": [
-      {
-        "title": "Illinois State Senator",
-        "years": "1997-2004"
-      },
-      {
-        "title": "United States Senator",
-        "state": "Illinois",
-        "years": "2005-2008"
-      },
-      {
-        "title": "44th President of the United States",
-        "years": "2009-2017"
-      }
-    ],
-    "party": "Democratic"
+  "name": "Sir Isaac Newton",
+  "title": "Mathematician, Physicist, Astronomer, and Author",
+  "born": "December 25, 1642",
+  "died": "March 20, 1726",
+  "birthplace": "Woolsthorpe, Lincolnshire, England",
+  "education": {
+    "school": "The King's School, Grantham",
+    "university": "Trinity College, Cambridge"
   },
-  "education": [
+  "career": [
     {
-      "institution": "Occidental College",
-      "years": "1979-1981"
+      "position": "Lucasian Professor of Mathematics",
+      "start_year": 1669,
+      "end_year": 1702
     },
     {
-      "institution": "Columbia University",
-      "degree": "Bachelor of Arts",
-      "major": "Political Science",
-      "year": 1983
+      "position": "Warden and Master of the Royal Mint",
+      "start_year": 1696,
+      "end_year": 1726
     },
     {
-      "institution": "Harvard Law School",
-      "degree": "Juris Doctor",
-      "year": 1991
+      "position": "President of the Royal Society",
+      "start_year": 1703,
+      "end_year": 1726
     }
   ],
-  "personalLife": {
-    "birthPlace": "Honolulu, Hawaii",
-    "spouse": "Michelle Obama",
-    "children": ["Malia Obama", "Sasha Obama"]
-  }
+  "contributions": [
+    "Laws of Motion",
+    "Universal Gravitation",
+    "Calculus",
+    "Optics"
+  ]
 }
 """]
 process_prompts(input_list)
