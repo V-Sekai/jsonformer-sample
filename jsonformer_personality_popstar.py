@@ -149,9 +149,9 @@ def break_apart_schema(schema, parent_required=None):
 
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.exporter.richconsole import RichConsoleSpanExporter
-
-from opentelemetry.sdk.trace.export import BatchSpanProcessor
+from opentelemetry.sdk.trace.export import (
+        ConsoleSpanExporter,
+        SimpleSpanProcessor,)
 
 import logging
 
@@ -163,15 +163,14 @@ file_handler.setFormatter(formatter)
 logger.addHandler(file_handler)
 logger.propagate = False
 
-
 from opentelemetry.sdk.resources import Resource
 from opentelemetry.semconv.resource import ResourceAttributes
 
-resource = Resource.create({ResourceAttributes.SERVICE_NAME: "service_vtuber_generator"})
 tracer = trace.get_tracer(__name__)
+resource = Resource.create({ResourceAttributes.SERVICE_NAME: "service_vtuber_generator"})
 trace.set_tracer_provider(TracerProvider(resource=resource))
 
-span_processor = BatchSpanProcessor(RichConsoleSpanExporter())
+span_processor = SimpleSpanProcessor(ConsoleSpanExporter())
 trace.get_tracer_provider().add_span_processor(span_processor)
 
 merged_data = {}
