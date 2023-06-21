@@ -8,18 +8,17 @@
 # micromamba install cudatoolkit -c conda-forge
 # pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonformer import Jsonformer
 from optimum.bettertransformer import BetterTransformer
-import torch
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 
-model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+model_name = "philschmid/flan-t5-xxl-sharded-fp16"
+tokenizer = T5Tokenizer.from_pretrained(model_name)
+model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto")
 model.config.use_cache = True
 
 model = BetterTransformer.transform(model)
 
-tokenizer = AutoTokenizer.from_pretrained(model_name)
 name_schema = {
   "type": "string",
   "description": "The name of the VTuber, which can be a combination of real or fictional words.",
@@ -120,20 +119,32 @@ subschemas = {
 prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
 
 def generate_data(property_name, schema):
-    json_schema = {
-        "$schema": "http://json-schema.org/draft-07/schema#",
-        "type": "object",
-        "properties": {
-            "name": {
-                "type": "string"
+    if schema["type"] == "array":
+        json_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                property_name: {
+                    "type": "array",
+                    "items": schema["items"]
+                }
             },
-            property_name: schema
-        },
-        "required": ["name", property_name]
-    }
+            "required": [property_name]
+        }
+    else:
+        json_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                property_name: schema
+            },
+            "required": [property_name]
+        }
 
-    jsonformer = Jsonformer(model, tokenizer, json_schema, prompt, max_string_token_length=250)
-    return jsonformer()
+    jsonformer = Jsonformer(model, tokenizer, json_schema, prompt, max_string_token_length=2048)
+    generated_data = jsonformer()
+
+    return {property_name: generated_data[property_name]}
 
 merged_data = {}
 for property_name, schema in subschemas.items():
@@ -145,3 +156,5 @@ for property_name, schema in subschemas.items():
 
 print("Merged Data:")
 print(merged_data)
+
+
