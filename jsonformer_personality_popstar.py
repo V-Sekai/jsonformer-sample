@@ -96,7 +96,7 @@ schema = {
     },
     "backstory": {
       "type": "string",
-      "description": "A fictional background story for the VTuber, which can include details about their origin, history, and motivations.",
+      "description": "A background story for the VTuber, which can include details about their origin, history, and motivations.",
       "minLength": 50,
       "maxLength": 100
     },
