@@ -21,7 +21,7 @@ model = BetterTransformer.transform(model)
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-{
+json_schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
