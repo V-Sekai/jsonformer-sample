@@ -8,19 +8,18 @@
 # micromamba install cudatoolkit -c conda-forge
 # pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonformer import Jsonformer
 from optimum.bettertransformer import BetterTransformer
+from transformers import T5Tokenizer, T5ForConditionalGeneration
 
-model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
-model = AutoModelForCausalLM.from_pretrained(model_name)
-model.config.use_cache = True
-
-model = BetterTransformer.transform(model)
-
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+model_name = "philschmid/flan-t5-xxl-sharded-fp16"
+tokenizer = T5Tokenizer.from_pretrained(model_name)
+model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto")
 
 json_schema = {
+	"$schema": "http://json-schema.org/draft-07/schema#",
+	"title": "OMI_personality",
+	"description": "An extension for the glTF format that defines a personality for a node and an endpoint where additional information can be queried.",
 	"type": "object",
 	"properties": {
 		"agent": {
@@ -38,18 +37,13 @@ json_schema = {
 		}
 	},
 	"required": ["agent", "personality"],
-	"$schema": "http://json-schema.org/draft-07/schema#",
-	"title": "OMI_personality",
-	"description": "An extension for the glTF format that defines a personality for a node and an endpoint where additional information can be queried.",
 }
 
 prompt = (
-    """Generate a new personality following this json schema: """
+    """William Henry Gates III (born October 28, 1955) is an American business magnate, investor, and philanthropist. He is best known for co-founding software giant Microsoft, along with his late childhood friend Paul Allen.[2][3] During his career at Microsoft, Gates held the positions of chairman, chief executive officer (CEO), president and chief software architect, while also being its largest individual shareholder until May 2014.[4] He was a major entrepreneur of the microcomputer revolution of the 1970s and 1980s. Following this json schema."""
 )
 
 jsonformer = Jsonformer(model, tokenizer, json_schema, prompt)
 generated_data = jsonformer()
 
 print(generated_data)
-# Example output.
-# {'agent': 'Jerry', 'personality': 'cheerful', 'defaultMessage': 'Hello World!'}
