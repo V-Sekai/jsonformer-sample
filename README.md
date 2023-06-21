@@ -8,7 +8,7 @@ python jsonformer_sample.py
 
 This will produce the following output:
 
-```
+```bash
 ===================================BUG REPORT===================================
 Welcome to bitsandbytes. For bug reports, please submit your error trace to: https://github.com/TimDettmers/bitsandbytes/issues
 ================================================================================
