@@ -110,9 +110,12 @@ schema = {
   ]
 }
 
-def break_apart_schema(schema):
+def break_apart_schema(schema, parent_required=None):
     if "properties" not in schema:
         return []
+
+    if parent_required is None:
+        parent_required = []
 
     properties = schema["properties"]
     required = schema.get("required", [])
@@ -120,24 +123,30 @@ def break_apart_schema(schema):
 
     for key, value in properties.items():
         if "properties" in value or "items" in value:
+            nested_required = required
             if "properties" in value:
-                nested_result = break_apart_schema(value)
+                nested_result = break_apart_schema(value, nested_required)
             else:  # "items" in value
-                nested_result = break_apart_schema(value["items"])
+                nested_result = break_apart_schema(value["items"], nested_required)
 
             result.extend(nested_result)
-        else:
-            property_schema = {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "type": "object",
-                "properties": {
-                    key: value
-                },
-                "required": [key] if key in required else []
+            continue
+
+        property_schema = {
+            "$schema": "http://json-schema.org/draft-07/schema#",
+            "type": "object",
+            "properties": {
+                key: value
             }
-            result.append(property_schema)
+        }
+
+        if key in required or key in parent_required:
+            property_schema["required"] = [key]
+
+        result.append(property_schema)
 
     return result
+
 
 prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
 
@@ -153,11 +162,3 @@ for new_schema in break_apart_schema(schema):
 
 print("Merged Data:")
 print(merged_data)
-
-import json
-merged_data_str = json.dumps(merged_data)
-
-jsonformer = Jsonformer(model, tokenizer, schema, merged_data_str, max_string_token_length=2048)
-final_data = jsonformer()
-print(final_data)
-
