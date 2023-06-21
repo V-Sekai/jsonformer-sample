@@ -44,7 +44,7 @@ json_schema = {
 }
 
 prompt = (
-    """Generate a new warm joyful personality following this json schema: """
+    """Generate a new VTuber personality following this json schema: """
 )
 
 jsonformer = Jsonformer(model, tokenizer, json_schema, prompt)
