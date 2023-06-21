@@ -222,8 +222,66 @@ def process_prompts(prompts):
     logger.info(f"merged_data: {merged_data}")
 
 input_list = ["""
-Steven Paul Jobs (February 24, 1955 – October 5, 2011) was an American business magnate, inventor, and investor. He was the co-founder, chairman, and CEO of Apple; the chairman and majority shareholder of Pixar; a member of The Walt Disney Company's board of directors following its acquisition of Pixar; and the founder, chairman, and CEO of NeXT. He was a pioneer of the personal computer revolution of the 1970s and 1980s, along with his early business partner and fellow Apple co-founder Steve Wozniak.
-
-Jobs was born in San Francisco to a Syrian father and German-American mother. He was adopted shortly after his birth. Jobs attended Reed College in 1972 before withdrawing that same year. In 1974, he traveled through India seeking enlightenment before later studying Zen Buddhism. He and Wozniak co-founded Apple in 1976 to sell Wozniak's Apple I personal computer. Together the duo gained fame and wealth a year later with production and sale of the Apple II, one of the first highly successful mass-produced microcomputers. Jobs saw the commercial potential of the Xerox Alto in 1979, which was mouse-driven and had a graphical user interface (GUI). This led to the development of the unsuccessful Apple Lisa in 1983, followed by the breakthrough Macintosh in 1984, the first mass-produced computer with a GUI. The Macintosh introduced the desktop publishing industry in 1985 with the addition of the Apple LaserWriter, the first laser printer to feature vector graphics. 
+{
+  "name": "Steve Jobs",
+  "birthDate": "1955-02-24",
+  "deathDate": "2011-10-05",
+  "nationality": "American",
+  "occupations": [
+    "business magnate",
+    "inventor",
+    "investor"
+  ],
+  "companies": [
+    {
+      "name": "Apple",
+      "roles": ["co-founder", "chairman", "CEO"]
+    },
+    {
+      "name": "Pixar",
+      "roles": ["chairman", "majority shareholder"]
+    },
+    {
+      "name": "The Walt Disney Company",
+      "roles": ["board of directors"]
+    },
+    {
+      "name": "NeXT",
+      "roles": ["founder", "chairman", "CEO"]
+    }
+  ],
+  "contributions": [
+    "personal computer revolution",
+    "Apple I personal computer",
+    "Apple II microcomputer",
+    "Xerox Alto",
+    "Apple Lisa",
+    "Macintosh",
+    "Apple LaserWriter"
+  ],
+  "personalLife": {
+    "birthPlace": "San Francisco",
+    "parents": {
+      "father": "Syrian",
+      "mother": "German-American"
+    },
+    "adoption": true,
+    "education": [
+      {
+        "institution": "Reed College",
+        "year": 1972,
+        "withdrawn": true
+      }
+    ],
+    "travels": [
+      {
+        "country": "India",
+        "year": 1974,
+        "purpose": "seeking enlightenment"
+      }
+    ],
+    "religion": "Zen Buddhism"
+  }
+}
 """]
 process_prompts(input_list)
