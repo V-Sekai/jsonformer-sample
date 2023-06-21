@@ -203,6 +203,7 @@ def get_user_input():
 
 
 def process_prompts(prompts):
+    merged_data = {}
     for prompt in prompts:
         logger.info(f"process_prompt: {prompt}")
 
@@ -214,6 +215,10 @@ def process_prompts(prompts):
             with tracer.start_as_current_span("jsonformer_generate"):
                 generated_data = jsonformer()
                 logger.info(f"jsonformer_generate: {generated_data}")
+        
+    for key, value in generated_data.items():
+        merged_data[key] = value
+    logger.info(f"merged_data: {merged_data}")
 
 input_list = ["""
 ## Character Concept: Mira the Enchanting Fox
