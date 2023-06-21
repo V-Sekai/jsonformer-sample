@@ -146,7 +146,7 @@ def break_apart_schema(schema, parent_required=None):
 
     return result
 
-prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead. Follow the json schema."""
+prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
 
 merged_data = {}
 separated_schema = break_apart_schema(schema)
