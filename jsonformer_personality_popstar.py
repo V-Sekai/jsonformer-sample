@@ -12,6 +12,47 @@ from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonformer import Jsonformer
 from optimum.bettertransformer import BetterTransformer
 
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+        ConsoleSpanExporter,
+        SimpleSpanProcessor,)
+
+import logging
+
+logger = logging.getLogger('custom_logger')
+logger.setLevel(logging.INFO)
+file_handler = logging.FileHandler('output.log')
+formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
+file_handler.setFormatter(formatter)
+logger.addHandler(file_handler)
+logger.propagate = False
+
+from opentelemetry.sdk.resources import Resource
+from opentelemetry.semconv.resource import ResourceAttributes
+
+tracer = trace.get_tracer(__name__)
+resource = Resource.create({ResourceAttributes.SERVICE_NAME: "service_vtuber_generator"})
+trace.set_tracer_provider(TracerProvider(resource=resource))
+
+span_processor = SimpleSpanProcessor(ConsoleSpanExporter())
+trace.get_tracer_provider().add_span_processor(span_processor)
+
+import threading
+import time
+
+def send_heartbeat():
+    with tracer.start_as_current_span("heartbeat") as heartbeat_span:
+        while True:
+            heartbeat_span.add_event("heartbeat")
+            logger.info("Heartbeat event sent")
+            time.sleep(20)
+
+heartbeat_thread = threading.Thread(target=send_heartbeat)
+heartbeat_thread.daemon = True
+heartbeat_thread.start()
+
+
 model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
 model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 
@@ -110,6 +151,7 @@ schema = {
   ]
 }
 
+
 def break_apart_schema(schema, parent_required=None):
     if "properties" not in schema:
         return []
@@ -122,15 +164,17 @@ def break_apart_schema(schema, parent_required=None):
     result = []
 
     for key, value in properties.items():
-        if "properties" in value or "items" in value:
+        if "properties" in value:
             nested_required = required
-            if "properties" in value:
-                nested_result = break_apart_schema(value, nested_required)
-            else:  # "items" in value
-                nested_result = break_apart_schema(value["items"], nested_required)
-
+            nested_result = break_apart_schema(value, nested_required)
             result.extend(nested_result)
             continue
+
+        if "items" in value and value["items"]:
+            if isinstance(value["items"], dict) and "properties" in value["items"]:
+                value["items"] = break_apart_schema(value["items"], required)
+            elif isinstance(value["items"], list):
+                value["items"] = [break_apart_schema(item, required) for item in value["items"] if isinstance(item, dict) and "properties" in item]
 
         property_schema = {
             "$schema": "http://json-schema.org/draft-07/schema#",
@@ -147,53 +191,64 @@ def break_apart_schema(schema, parent_required=None):
 
     return result
 
-from opentelemetry import trace
-from opentelemetry.sdk.trace import TracerProvider
-from opentelemetry.sdk.trace.export import (
-        ConsoleSpanExporter,
-        SimpleSpanProcessor,)
-
-import logging
-
-logger = logging.getLogger('custom_logger')
-logger.setLevel(logging.INFO)
-file_handler = logging.FileHandler('output.log')
-formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-file_handler.setFormatter(formatter)
-logger.addHandler(file_handler)
-logger.propagate = False
-
-from opentelemetry.sdk.resources import Resource
-from opentelemetry.semconv.resource import ResourceAttributes
-
-tracer = trace.get_tracer(__name__)
-resource = Resource.create({ResourceAttributes.SERVICE_NAME: "service_vtuber_generator"})
-trace.set_tracer_provider(TracerProvider(resource=resource))
-
-span_processor = SimpleSpanProcessor(ConsoleSpanExporter())
-trace.get_tracer_provider().add_span_processor(span_processor)
 
 merged_data = {}
+
 separated_schema = break_apart_schema(schema)
 
-with tracer.start_as_current_span("break_apart_schema"):
-    separated_schema = break_apart_schema(schema)
 
-prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
+def process_prompts(prompts):
+    for prompt in prompts:
+        logger.info(f"process_new_schema: {prompt}")
 
-logger.info(prompt)
+        for new_schema in separated_schema:
+            with tracer.start_as_current_span("process_new_schema"):
+                jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
 
-for new_schema in separated_schema:
-    with tracer.start_as_current_span("process_new_schema"):
-        jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
+            with tracer.start_as_current_span("jsonformer_generate"):
+                generated_data = jsonformer()
+                logger.info(f"jsonformer_generate: {generated_data}")
 
-        with tracer.start_as_current_span("jsonformer_generate"):
-            generated_data = jsonformer()
-            logger.info(generated_data)
+            with tracer.start_as_current_span("merge_generated_data"):
+                for key, value in generated_data.items():
+                    merged_data[key] = value
 
-        with tracer.start_as_current_span("merge_generated_data"):
-            for key, value in generated_data.items():
-                merged_data[key] = value
+def get_user_input():
+    prompt = input("Enter a prompt (or type 'exit' to quit): ")
+    return prompt
 
-with tracer.start_as_current_span("print_merged_data"):
-    logger.info(merged_data)
+
+def process_prompts(prompts):
+    for prompt in prompts:
+        logger.info(f"process_prompt: {prompt}")
+
+        for new_schema in separated_schema:
+            with tracer.start_as_current_span("process_new_schema"):
+                jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
+                logger.info(f"process_new_schema: {new_schema}")
+
+            with tracer.start_as_current_span("jsonformer_generate"):
+                generated_data = jsonformer()
+                logger.info(f"jsonformer_generate: {generated_data}")
+
+input_list = ["""
+## Character Concept: Mira the Enchanting Fox
+
+**Background:** Mira is a charming, intelligent fox with a love for weaving enchantments and unraveling mysteries. She possesses a deep understanding of various subjects and takes pleasure in imparting her knowledge to others.
+
+**Personality Traits:**
+
+1. Astute and perceptive
+2. Delights in casting enchantments on friends and admirers
+3. Revels in deciphering enigmas and unraveling secrets
+4. Possesses an inquisitive nature and thrives on acquiring new knowledge
+5. Can be impish at times, but ultimately has a benevolent spirit
+
+**Appearance:**
+
+- Fox ears and tail
+- Lustrous, iridescent fur (e.g., shades of blue, purple, and silver)
+- Adorns a fashionable outfit that combines contemporary and classic elements
+- Wields a mystical staff that she employs to weave enchantments and perform illusions
+"""]
+process_prompts(input_list)
