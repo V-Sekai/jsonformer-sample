@@ -13,9 +13,9 @@ from jsonformer import Jsonformer
 from optimum.bettertransformer import BetterTransformer
 import torch
 
-model_name = "togethercomputer/RedPajama-INCITE-7B-Instruct"
+model_name = "ethzanalytics/RedPajama-INCITE-Instruct-7B-v0.1-sharded-bf16"
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=torch.float16, load_in_8bit=True,)
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=torch.bfloat16)
 model = BetterTransformer.transform(model)
 
 schema = {
@@ -151,7 +151,7 @@ prompt = """Gura is a friendly, mischievous shark with a generally amiable perso
 merged_data = {}
 separated_schema = break_apart_schema(schema)
 for new_schema in separated_schema:
-    jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
+    jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=2048)
     generated_data = jsonformer()
     print(generated_data)
 
