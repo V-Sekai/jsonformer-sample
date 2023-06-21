@@ -4,19 +4,20 @@
 # SPDX-License-Identifier: MIT
 
 # pip install git+https://github.com/V-Sekai/jsonformer.git
-# pip install accelerate transformers bitsandbytes optimum
+# pip install accelerate transformers bitsandbytes optimum opentelemetry-api opentelemetry-sdk opentelemetry-exporter-richconsole
 # micromamba install cudatoolkit -c conda-forge
 # pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonformer import Jsonformer
 from optimum.bettertransformer import BetterTransformer
-import torch
 
-model_name = "ethzanalytics/RedPajama-INCITE-Instruct-7B-v0.1-sharded-bf16"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=torch.bfloat16)
+model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+
 model = BetterTransformer.transform(model)
+
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -148,16 +149,35 @@ def break_apart_schema(schema, parent_required=None):
 
 prompt = """Gura is a friendly, mischievous shark with a generally amiable personality. She has no sense of direction and often mispronounces words. Combined with her sense of laziness, this has led fans to affectionately label her a bonehead."""
 
+from opentelemetry import trace
+from opentelemetry.sdk.trace import TracerProvider
+from opentelemetry.sdk.trace.export import (
+        ConsoleSpanExporter,
+        SimpleSpanProcessor,)
+
+trace.set_tracer_provider(TracerProvider())
+tracer = trace.get_tracer(__name__)
+
+span_processor = SimpleSpanProcessor(ConsoleSpanExporter())
+trace.get_tracer_provider().add_span_processor(span_processor)
+
 merged_data = {}
 separated_schema = break_apart_schema(schema)
+
+with tracer.start_as_current_span("break_apart_schema"):
+    separated_schema = break_apart_schema(schema)
+
 for new_schema in separated_schema:
-    print(new_schema)
-    jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=2048)
-    generated_data = jsonformer()
-    print(generated_data)
+    with tracer.start_as_current_span("process_new_schema"):
+        jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=2048)
 
-    for key, value in generated_data.items():
-        merged_data[key] = value
+        with tracer.start_as_current_span("jsonformer_generate"):
+            generated_data = jsonformer()
+            print(generated_data)
 
-print("Merged Data:")
-print(merged_data)
+        with tracer.start_as_current_span("merge_generated_data"):
+            for key, value in generated_data.items():
+                merged_data[key] = value
+
+with tracer.start_as_current_span("print_merged_data"):
+    print(merged_data)
