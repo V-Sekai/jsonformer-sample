@@ -1,8 +1,14 @@
 # jsonformer-sample
 
-```bash
->python jsonformer_sample.py
+To run the `jsonformer_sample.py` script, open your terminal and execute the following command:
 
+```bash
+python jsonformer_sample.py
+```
+
+This will produce the following output:
+
+```
 ===================================BUG REPORT===================================
 Welcome to bitsandbytes. For bug reports, please submit your error trace to: https://github.com/TimDettmers/bitsandbytes/issues
 ================================================================================
@@ -15,4 +21,4 @@ WARNING:root:For training, the BetterTransformer implementation for gpt_neox  ar
 
 ## Screenshot
 
-![./Screenshot 2023-06-20 204612.png](https://github.com/V-Sekai/jsonformer-sample/blob/main/Screenshot%202023-06-20%20204612.png)
+![./Screenshot 2023-06-20 204612.png](Screenshot%202023-06-20%20204612.png)
