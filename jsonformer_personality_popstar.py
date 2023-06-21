@@ -11,43 +11,95 @@
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonformer import Jsonformer
 from optimum.bettertransformer import BetterTransformer
+import torch
 
 model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
-model = AutoModelForCausalLM.from_pretrained(model_name)
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", torch_dtype=torch.float16)
 model.config.use_cache = True
 
 model = BetterTransformer.transform(model)
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-json_schema = {
+{
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
   "properties": {
+    "name": {
+      "type": "string",
+      "description": "The name of the VTuber, which can be a combination of real or fictional words."
+    },
+    "avatar": {
+      "type": "string",
+      "enum": ["2D", "3D"],
+      "description": "A 2D or 3D digital representation of the VTuber, often designed with unique features and characteristics."
+    },
     "personality": {
-      "type": "string",
-      "description": "The unique identifier for the personality."
-    },
-    "knowledge": {
-      "type": "string",
-      "description": "The specific area of expertise or knowledge of the personality."
-    },
-    "context": {
       "type": "object",
       "properties": {
-        "skills": {
-          "type": "array",
-          "items": {
-            "type": "string"
+        "uniqueIdentifier": {
+          "type": "string",
+          "description": "The unique identifier for the personality."
+        },
+        "knowledge": {
+          "type": "string",
+          "description": "The specific area of expertise or knowledge of the personality."
+        },
+        "context": {
+          "type": "object",
+          "properties": {
+            "skills": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "description": "A list of skills possessed by the personality."
+            }
           },
-          "description": "A list of skills possessed by the personality."
+          "required": ["skills"]
         }
       },
-      "required": ["skills"]
+      "required": ["uniqueIdentifier", "knowledge", "context"]
+    },
+    "voice": {
+      "type": "string",
+      "enum": ["synthesized", "human"],
+      "description": "The voice of the VTuber, which can be either synthesized or provided by a human voice actor."
+    },
+    "backstory": {
+      "type": "string",
+      "description": "A fictional background story for the VTuber, which can include details about their origin, history, and motivations."
+    },
+    "content": {
+      "type": "string",
+      "enum": ["gaming", "music", "art", "educational", "variety"],
+      "description": "The type of content the VTuber creates, such as gaming, music, art, or educational videos."
+    },
+    "platform": {
+      "type": "string",
+      "enum": ["YouTube", "Twitch", "Facebook Gaming", "Mixer", "DLive"],
+      "description": "The primary platform where the VTuber shares their content, such as YouTube, Twitch, or other streaming services."
+    },
+    "fanbase": {
+      "type": "string",
+      "description": "The community of fans who follow and support the VTuber's content."
+    },
+    "collaborations": {
+      "type": "array",
+      "items": {
+        "type": "string"
+      },
+      "description": "Any collaborations the VTuber has done with other creators, both virtual and non-virtual."
+    },
+    "merchandise": {
+      "type": "string",
+      "enum": ["clothing", "accessories", "digital goods"],
+      "description": "Any physical or digital merchandise related to the VTuber, such as clothing, accessories, or digital goods."
     }
   },
-  "required": ["personality", "knowledge", "context"]
+  "required": ["name", "avatar", "personality", "voice", "backstory", "content", "platform", "fanbase", "collaborations", "merchandise"]
 }
+
 
 vtuber_names = [
     "Alyssa Hartfield",
