@@ -96,7 +96,9 @@ schema = {
     },
     "backstory": {
       "type": "string",
-      "description": "A fictional background story for the VTuber, which can include details about their origin, history, and motivations."
+      "description": "A fictional background story for the VTuber, which can include details about their origin, history, and motivations.",
+      "minLength": 50,
+      "maxLength": 100
     },
     "content": {
       "type": "string",
@@ -213,38 +215,55 @@ def process_prompts(prompts):
 
 input_list = ["""
 {
-  "name": "Sir Isaac Newton",
-  "title": "Mathematician, Physicist, Astronomer, and Author",
-  "born": "December 25, 1642",
-  "died": "March 20, 1726",
-  "birthplace": "Woolsthorpe, Lincolnshire, England",
+  "name": "Tim Cook",
+  "title": "CEO of Apple Inc.",
+  "born": "November 1, 1960",
+  "birthplace": "Mobile, Alabama, United States",
   "education": {
-    "school": "The King's School, Grantham",
-    "university": "Trinity College, Cambridge"
+    "bachelor_degree": {
+      "university": "Auburn University",
+      "major": "Industrial Engineering",
+      "graduation_year": 1982
+    },
+    "master_degree": {
+      "university": "Duke University",
+      "major": "Master of Business Administration (MBA)",
+      "graduation_year": 1988
+    }
   },
   "career": [
     {
-      "position": "Lucasian Professor of Mathematics",
-      "start_year": 1669,
-      "end_year": 1702
+      "position": "Director of North American Fulfillment",
+      "company": "IBM",
+      "start_year": 1994,
+      "end_year": 1997
     },
     {
-      "position": "Warden and Master of the Royal Mint",
-      "start_year": 1696,
-      "end_year": 1726
+      "position": "Vice President of Corporate Materials",
+      "company": "Compaq",
+      "start_year": 1997,
+      "end_year": 1998
     },
     {
-      "position": "President of the Royal Society",
-      "start_year": 1703,
-      "end_year": 1726
+      "position": "Senior Vice President of Worldwide Operations",
+      "company": "Apple Inc.",
+      "start_year": 1998,
+      "end_year": 2005
+    },
+    {
+      "position": "Chief Operating Officer",
+      "company": "Apple Inc.",
+      "start_year": 2005,
+      "end_year": 2011
+    },
+    {
+      "position": "CEO",
+      "company": "Apple Inc.",
+      "start_year": 2011,
+      "end_year": "present"
     }
-  ],
-  "contributions": [
-    "Laws of Motion",
-    "Universal Gravitation",
-    "Calculus",
-    "Optics"
   ]
 }
+
 """]
 process_prompts(input_list)
