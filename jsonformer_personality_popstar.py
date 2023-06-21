@@ -197,22 +197,6 @@ merged_data = {}
 separated_schema = break_apart_schema(schema)
 
 
-def process_prompts(prompts):
-    for prompt in prompts:
-        logger.info(f"process_new_schema: {prompt}")
-
-        for new_schema in separated_schema:
-            with tracer.start_as_current_span("process_new_schema"):
-                jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
-
-            with tracer.start_as_current_span("jsonformer_generate"):
-                generated_data = jsonformer()
-                logger.info(f"jsonformer_generate: {generated_data}")
-
-            with tracer.start_as_current_span("merge_generated_data"):
-                for key, value in generated_data.items():
-                    merged_data[key] = value
-
 def get_user_input():
     prompt = input("Enter a prompt (or type 'exit' to quit): ")
     return prompt
@@ -225,7 +209,7 @@ def process_prompts(prompts):
         for new_schema in separated_schema:
             with tracer.start_as_current_span("process_new_schema"):
                 jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
-                logger.info(f"process_new_schema: {new_schema}")
+                logger.debug(f"process_new_schema: {new_schema}")
 
             with tracer.start_as_current_span("jsonformer_generate"):
                 generated_data = jsonformer()
