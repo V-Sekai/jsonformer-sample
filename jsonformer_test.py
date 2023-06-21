@@ -168,6 +168,6 @@ def process_prompts(prompts):
                 merged_data[key] = value
 
 input_list = ["""
-Generate a wand.
+Generate a wand. It is 5 dollars.
 """]
 process_prompts(input_list)
