@@ -70,6 +70,10 @@ if __name__ == "__main__":
         description="Generate JSON data based on input prompt and schema.",
         examples=[
             ['Generate a wand. It is 5 dollars.', '{"$schema":"http://json-schema.org/draft-07/schema#","title":"Avatar Prop","type":"object","properties":{"id":{"description":"Unique identifier for the avatar prop."}}}"'],
+            [
+                '{$schema":"http://json-schema.org/draft-07/schema#","title":"Avatar Prop","type":"object","properties":{"id":{"description":"Unique identifier for the avatar prop.}',
+                '{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"$schema": {"type": "string"}, "type": {"type": "string"}, "properties": {"type": "object", "propertyNames": {"type": "string"}, "additionalProperties": {"type": "object", "required": ["type", "description"], "properties": {"type": {"type": "string", "enum": ["string", "number", "boolean", "object", "array"]}, "description": {"type": "string", "minLength": 1, "maxLength": 1000}}, "additionalProperties": false}}}, "required": ["type", "properties"], "additionalProperties": false}'
+            ]
         ],
     )
     iface.launch(share=True)
