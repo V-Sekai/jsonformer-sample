@@ -64,6 +64,7 @@ model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto"
 
 max_length = 512
 
+# Each description must have enough context to stand alone query against the prompt.
 schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
@@ -71,7 +72,7 @@ schema = {
   "properties": {
     "name": {
       "type": "string",
-      "description": "The name of the VTuber, which can be a combination of real or fictional words.",
+      "description": "VTuber's name, real or fictional words.",
       "minLength": 2,
       "maxLength": 100
     },
@@ -81,66 +82,61 @@ schema = {
         "appearanceType": {
           "type": "string",
           "enum": ["2D", "3D"],
-          "description": "A 2D or 3D digital representation of the VTuber, often designed with unique features and characteristics."
+          "description": "VTuber's 2D or 3D digital representation."
         },
         "appearance": {
           "type": "object",
           "properties": {
             "clothing": {
               "type": "string",
-              "description": "A description of the avatar's clothing."
+              "description": "VTuber avatar's clothing description."
             },
             "hair": {
               "type": "string",
-              "description": "A description of the avatar's hair, including color, length, and style."
+              "description": "VTuber avatar's hair description."
             },
             "eyes": {
               "type": "string",
-              "description": "A description of the avatar's eye color and shape."
+              "description": "VTuber avatar's eye description."
             },
             "skin": {
               "type": "string",
-              "description": "A description of the avatar's skin color and texture."
+              "description": "VTuber avatar's skin description."
             },
             "height": {
               "type": "string",
-              "description": "The height of the avatar."
+              "description": "VTuber avatar's height."
             },
             "weight": {
               "type": "string",
-              "description": "The weight of the avatar."
+              "description": "VTuber avatar's weight."
             },
             "otherFeatures": {
               "type": "string",
-              "description": "Any other notable features of the avatar's appearance."
+              "description": "VTuber avatar's other notable features."
             }
           },
-          "description": "An object containing various properties describing the avatar's physical appearance."
+          "description": "VTuber avatar's physical appearance properties."
         },
         "personality": {
           "type": "string",
-          "description": "The personality traits of the avatar, such as mischievous, party-going, or underachiever."
+          "description": "VTuber avatar's personality traits."
         },
         "instrument": {
           "type": "string",
-          "description": "The musical instrument played by the avatar in the virtual band."
-        },
-        "animationStyle": {
-          "type": "string",
-          "enum": ["hand-drawn", "computer-generated", "puppetry"],
-          "description": "The style of animation used to depict the avatar, such as hand-drawn, computer-generated, or puppetry."
+          "description": "VTuber avatar's played musical instrument."
         },
         "voiceType": {
           "type": "string",
           "enum": ["human", "synthesized"],
-          "description": "The type of voice used for the avatar, either human or synthesized."
+          "description": "VTuber avatar's voice type: human or synthesized."
         }
       },
-      "required": ["appearanceType", "appearance", "personality", "instrument", "animationStyle", "voiceType"]
+      "required": ["appearanceType", "appearance", "personality", "instrument", "voiceType"]
     },
     "uniqueIdentifier": {
       "type": "string",
-      "description": "The unique identifier for the personality.",
+      "description": "VTuber's unique identifier.",
       "minLength": 3,
       "maxLength": 16
     },
@@ -149,49 +145,44 @@ schema = {
       "items": {
         "type": "string"
       },
-      "description": "A list of skills possessed by the personality.",
+      "description": "List of VTuber's skills.",
       "minItems": 1
-    },
-    "voice": {
-      "type": "string",
-      "enum": ["synthesized", "human"],
-      "description": "The voice of the VTuber, which can be either synthesized or provided by a human voice actor."
     },
     "backstory": {
       "type": "string",
-      "description": "A background story for the VTuber, which can include details about their origin, history, and motivations.",
+      "description": "VTuber's background story, origin, history, and motivations.",
       "minLength": 50,
-      "maxLength": 412
+      "maxLength": 100
     },
     "content": {
       "type": "string",
       "enum": ["gaming", "music", "art", "educational", "variety"],
-      "description": "The type of content the VTuber creates, such as gaming, music, art, or educational videos."
+      "description": "VTuber's content type: gaming, music, art, educational, or variety."
     },
     "platform": {
       "type": "string",
       "enum": ["YouTube", "Twitch", "Other"],
-      "description": "The primary platform where the VTuber shares their content, such as YouTube, Twitch, or other streaming services."
+      "description": "VTuber's primary content sharing platform: YouTube, Twitch, or other streaming services."
     },
     "fanbase": {
       "type": "string",
-      "description": "The community of fans who follow and support the VTuber's content."
+      "description": "VTuber's community of fans and supporters."
     },
     "collaborations": {
       "type": "array",
       "items": {
         "type": "string"
       },
-      "description": "Any collaborations the VTuber has done with other creators, both virtual and non-virtual."
+      "description": "VTuber's collaborations with other creators, virtual or non-virtual."
     },
     "merchandise": {
       "type": "string",
       "enum": ["clothing", "accessories", "digital goods"],
-      "description": "Any physical or digital merchandise related to the VTuber, such as clothing, accessories, or digital goods."
+      "description": "VTuber's related merchandise: clothing, accessories, or digital goods."
     },
     "knowledge": {
       "type": "string",
-      "description": "The specific area of expertise or knowledge of the personality."
+      "description": "VTuber's specific area of expertise or knowledge."
     }
   },
   "required": [
@@ -200,7 +191,6 @@ schema = {
     "uniqueIdentifier",
     "knowledge",
     "skills",
-    "voice",
     "backstory",
     "content",
     "platform",
