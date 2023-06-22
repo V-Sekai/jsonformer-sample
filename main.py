@@ -9,7 +9,6 @@ import sys
 from jsonformer import Jsonformer
 from lib.jsonformer_utils import JsonformerUtils
 from lib.generator_utils import setup_tracer
-from transformers import AutoTokenizer, T5ForConditionalGeneration
 import gradio as gr
 import json, torch
 
@@ -33,9 +32,10 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
     return merged_data
 
 
-model_name = "philschmid/flan-ul2-20b-fp16"
-model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
-model.config.use_cache = True
+from transformers import AutoModelForCausalLM, AutoTokenizer
+model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+model = BetterTransformer.transform(model)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 from optimum.bettertransformer import BetterTransformer
