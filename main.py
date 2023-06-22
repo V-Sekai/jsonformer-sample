@@ -79,19 +79,19 @@ if __name__ == "__main__":
                 "properties": {
                     "trigger_condition": {
                         "minLength": 5,
-                        "maxLength": 50,
+                        "maxLength": 10,
                         "type": "string",
                         "description": "The condition that must be met for the transition to occur."
                     },
                     "from_animation": {
                         "minLength": 5,
-                        "maxLength": 50,
+                        "maxLength": 10,
                         "type": "string",
                         "description": "The name of the animation to transition from."
                     },
                     "to_animation": {
                         "minLength": 5,
-                        "maxLength": 50,
+                        "maxLength": 10,
                         "type": "string",
                         "description": "The name of the animation to transition to."
                     }
