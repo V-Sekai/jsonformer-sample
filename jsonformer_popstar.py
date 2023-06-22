@@ -53,7 +53,6 @@ heartbeat_thread.start()
 
 
 model_name = "philschmid/flan-ul2-20b-fp16"
-_system_directive = "Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality."
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 import torch
@@ -181,7 +180,8 @@ def process_prompts(prompts):
                 merged_data[key] = value
 
 input_list = ["""
-Her name is Pixel. Generate a backstory.
+Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality.
+Sophia is creating a new avatar Pixel. Generate a backstory for Pixel.
 #passion=music_entertainment; #dream=pop_star; #priority=assist_metaverse_visitors; #knowledge=3OV_plugin_WordPress; #duty=inform_not_pushy; #context: {technical_skills; #passion(#dream); #priority(#knowledge); #duty(#context)}
 """]
 process_prompts(input_list)
