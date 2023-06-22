@@ -16,7 +16,7 @@ import time
 
 def setup_tracer():
     tracer = trace.get_tracer(__name__)
-    resource = Resource.create({ResourceAttributes.SERVICE_NAME: "service_vtuber_generator"})
+    resource = Resource.create({ResourceAttributes.SERVICE_NAME: "service_jsonformer_generator"})
     trace.set_tracer_provider(TracerProvider(resource=resource))
 
     span_processor = SimpleSpanProcessor(ConsoleSpanExporter())

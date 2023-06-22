@@ -79,7 +79,7 @@ if __name__ == "__main__":
                     "name": {
                     "type": "string"
                     },
-                    "age": {
+                    "price": {
                     "type": "integer"
                     }
                 }
