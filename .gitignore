@@ -1,2 +1,6 @@
 
 output.log
+
+__pycache__/
+
+samples/performance.json

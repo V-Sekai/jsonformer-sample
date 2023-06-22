@@ -8,7 +8,7 @@
 # micromamba install cudatoolkit -c conda-forge
 # pip3 install torch torchvision torchaudio --index-url https://download.pytorch.org/whl/cu118
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoTokenizer, T5ForConditionalGeneration 
 from jsonformer import Jsonformer
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
@@ -52,33 +52,13 @@ heartbeat_thread.daemon = True
 heartbeat_thread.start()
 
 
-model_name = "tiiuae/falcon-7b-instruct"
-
-import transformers, torch
-
+model_name = "philschmid/flan-ul2-20b-fp16"
+_system_directive = "Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality."
 tokenizer = AutoTokenizer.from_pretrained(model_name)
-pipeline = transformers.pipeline(
-    "text-generation",
-    model=model_name,
-    tokenizer=tokenizer,
-    torch_dtype=torch.bfloat16,
-    trust_remote_code=True,
-    device_map="auto",
-)
 
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True) 
 
-system_directive = "Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality."
 max_length = 2048
-
-sequences = pipeline(
-    system_directive,
-    max_length=max_length,
-    do_sample=True,
-    top_k=10,
-    num_return_sequences=1,
-    eos_token_id=tokenizer.eos_token_id,
-)
 
 schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -165,60 +145,10 @@ schema = {
     "merchandise"
   ]
 }
-
-
-
-def break_apart_schema(schema, parent_required=None):
-    """
-    Breaks apart a JSON schema into smaller schemas.
-    
-    :param schema: The input JSON schema.
-    :param parent_required: A list of required properties from the parent schema.
-    :return: A list of smaller JSON schemas.
-    """
-    def process_items(item, required):
-        if isinstance(item, dict) and "properties" in item:
-            return break_apart_schema(item, required)
-        else:
-            return item
-
-    if "properties" not in schema:
-        return []
-
-    parent_required = parent_required or []
-    properties = schema["properties"]
-    required = schema.get("required", [])
-    result = []
-
-    for key, value in properties.items():
-        nested_required = value.get("required", [])
-
-        if "properties" in value:
-            result.extend(break_apart_schema(value, nested_required))
-        elif "items" in value and value["items"]:
-            if isinstance(value["items"], list):
-                value["items"] = [process_items(item, required) for item in value["items"]]
-            else:
-                value["items"] = process_items(value["items"], required)
-        else:
-            property_schema = {
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "type": "object",
-                "properties": {key: value}
-            }
-
-            if key in required or key in parent_required:
-                property_schema["required"] = [key]
-
-            result.append(property_schema)
-
-    return result
-
-
 merged_data = {}
+from jsonformer_utils import JsonformerUtils
 
-separated_schema = break_apart_schema(schema)
-
+separated_schema = JsonformerUtils.break_apart_schema(schema)
 
 def get_user_input():
     prompt = input("Enter a prompt (or type 'exit' to quit): ")
