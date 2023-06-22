@@ -52,7 +52,7 @@ class Predictor(BasePredictor):
         input_schema: str = Input(description="Input schema for the model")) -> str:
         output = process_prompts_common(self.model, self.tokenizer, input_prompt, input_schema)
         output = json.dumps(output)
-        return validate(output, schema=input_schema)
+        return output
 
 import gradio as gr
 
