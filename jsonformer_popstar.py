@@ -56,6 +56,11 @@ model_name = "philschmid/flan-ul2-20b-fp16"
 _system_directive = "Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality."
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
+import torch
+
+if not torch.cuda.is_available():
+    raise RuntimeError("This script requires a GPU to run.")
+
 model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True) 
 
 max_length = 2048
@@ -63,11 +68,13 @@ max_length = 2048
 schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
+  "description": "The entire schema must fit in 512 tokens.",
   "properties": {
     "name": {
       "type": "string",
       "description": "The name of the VTuber, which can be a combination of real or fictional words.",
-      "minLength": 2
+      "minLength": 2,
+      "maxLength": 100
     },
     "avatar": {
       "type": "string",
@@ -97,7 +104,7 @@ schema = {
       "type": "string",
       "description": "A background story for the VTuber, which can include details about their origin, history, and motivations.",
       "minLength": 50,
-      "maxLength": 100
+      "maxLength": 412
     },
     "content": {
       "type": "string",
