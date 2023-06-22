@@ -32,8 +32,8 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
 
 def initialize_model_and_tokenizer():
     model_name = "philschmid/flan-ul2-20b-fp16"
-    from transformers import AutoModelForCausalLM, AutoTokenizer
-    model = AutoModelForCausalLM.from_pretrained(model_name)
+    from transformers import AutoTokenizer, T5ForConditionalGeneration 
+    model = T5ForConditionalGeneration.from_pretrained(model_name)
     model.config.use_cache = True
     from optimum.bettertransformer import BetterTransformer
     model = BetterTransformer.transform(model)
@@ -47,7 +47,7 @@ class Predictor(BasePredictor):
        self.model, self.tokenizer = initialize_model_and_tokenizer()
 
     def predict(self, 
-        prompt: str = Input(description="Input prompt for the model"),
-        schema: str = Input(description="Input schema for the model")) -> str:
-        output = json.dumps(process_prompts_common(self.model, self.tokenizer, prompt, schema))
+        input_prompt: str = Input(description="Input prompt for the model"),
+        input_schema: str = Input(description="Input schema for the model")) -> str:
+        output = json.dumps(process_prompts_common(self.model, self.tokenizer, input_prompt, input_schema))
         return output
