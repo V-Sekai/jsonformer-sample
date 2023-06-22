@@ -88,21 +88,6 @@ if __name__ == "__main__":
             [
                 "Generate a wand. It is 5 dollars.",
                 """{
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "type": "object",
-                "properties": {
-                    "name": {
-                    "type": "string"
-                    },
-                    "price": {
-                    "type": "integer"
-                    }
-                }
-                }"""
-            ],
-            [
-                """
-                {
                     "$schema": "http://json-schema.org/draft-07/schema#",
                     "type": "object",
                     "properties": {
@@ -113,8 +98,21 @@ if __name__ == "__main__":
                         "type": "integer"
                         }
                     }
-                }
-                """,
+                }"""
+            ],
+            [
+                """{
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                        "type": "string"
+                        },
+                        "price": {
+                        "type": "integer"
+                        }
+                    }
+                }""",
                 """
                 {
                     "$schema": "http://json-schema.org/draft-07/schema#",
