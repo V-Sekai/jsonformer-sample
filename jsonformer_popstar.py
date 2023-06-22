@@ -84,8 +84,38 @@ schema = {
           "description": "A 2D or 3D digital representation of the VTuber, often designed with unique features and characteristics."
         },
         "appearance": {
-          "type": "string",
-          "description": "A description of the avatar's physical appearance, including clothing, hair, and other features."
+          "type": "object",
+          "properties": {
+            "clothing": {
+              "type": "string",
+              "description": "A description of the avatar's clothing."
+            },
+            "hair": {
+              "type": "string",
+              "description": "A description of the avatar's hair, including color, length, and style."
+            },
+            "eyes": {
+              "type": "string",
+              "description": "A description of the avatar's eye color and shape."
+            },
+            "skin": {
+              "type": "string",
+              "description": "A description of the avatar's skin color and texture."
+            },
+            "height": {
+              "type": "string",
+              "description": "The height of the avatar."
+            },
+            "weight": {
+              "type": "string",
+              "description": "The weight of the avatar."
+            },
+            "otherFeatures": {
+              "type": "string",
+              "description": "Any other notable features of the avatar's appearance."
+            }
+          },
+          "description": "An object containing various properties describing the avatar's physical appearance."
         },
         "personality": {
           "type": "string",
@@ -210,7 +240,11 @@ def process_prompts(prompts):
 
 input_list = ["""
 Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality.
-Sophia is creating a new avatar Pixel. Generate a backstory for Pixel.
-#passion=music_entertainment; #dream=pop_star; #priority=assist_metaverse_visitors; #knowledge=3OV_plugin_WordPress; #duty=inform_not_pushy; #context: {technical_skills; #passion(#dream); #priority(#knowledge); #duty(#context)}
+Sophia is creating a new avatar Grimes.
+Claire Elise Boucher (/buːˈʃeɪ/ boo-SHAY;[2] born March 17, 1988), known professionally as Grimes, is a Canadian musician, singer, songwriter, and record producer.[3][4] Her early work has been described as extending from "lo-fi R&B" to futuristic dance-pop,[5] and has incorporated influences from electronic music, hip hop, and rock. Her lyrics often touch on science fiction and feminist themes. She has released five studio albums.
+
+Born and raised in Vancouver (later moving to Montreal), Grimes began releasing music independently in the late 2000s, releasing two albums, Geidi Primes and Halfaxa, in 2010 on Arbutus Records. She subsequently signed with 4AD and rose to prominence with the release of her third studio album, Visions, in 2012. Visions includes the singles "Genesis" and "Oblivion" and received the Canadian music industry Juno Award for Electronic Album of the Year.[6] Following this, her fourth studio album, Art Angels, was released in 2015 and received critical praise as several publications named it the best album of the year.[7] Her fifth studio album, Miss Anthropocene, was released in 2020.
+
+Outside of music, Grimes had a voice role in the 2020 action role-playing video game Cyberpunk 2077 and is a judge on the music competition game show Alter Ego. 
 """]
 process_prompts(input_list)
