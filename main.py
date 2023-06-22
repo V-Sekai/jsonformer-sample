@@ -45,10 +45,9 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
         return final_out()
 
 
-from transformers import AutoTokenizer, T5ForConditionalGeneration
-model_name = "philschmid/flan-ul2-20b-fp16"
-model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
-model.config.use_cache = True
+from transformers import AutoModelForCausalLM, AutoTokenizer
+model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 from optimum.bettertransformer import BetterTransformer
