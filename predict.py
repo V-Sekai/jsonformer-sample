@@ -30,27 +30,22 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
 
     return merged_data
 
-def initialize_model_and_tokenizer():
-    model_name = "philschmid/flan-ul2-20b-fp16"
-    from transformers import AutoTokenizer, T5ForConditionalGeneration 
-    model = T5ForConditionalGeneration.from_pretrained(model_name)
-    model.config.use_cache = True
-    from optimum.bettertransformer import BetterTransformer
-    model = BetterTransformer.transform(model)
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-    return model, tokenizer
+model_name = "philschmid/flan-ul2-20b-fp16"
+from transformers import AutoTokenizer, T5ForConditionalGeneration 
+model = T5ForConditionalGeneration.from_pretrained(model_name)
+model.config.use_cache = True
+from optimum.bettertransformer import BetterTransformer
+model = BetterTransformer.transform(model)
+tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 from cog import BasePredictor, Input
 from jsonschema import validate
 
 class Predictor(BasePredictor):
-    def setup(self):
-       self.model, self.tokenizer = initialize_model_and_tokenizer()
-
     def predict(self, 
         input_prompt: str = Input(description="Input prompt for the model"),
         input_schema: str = Input(description="Input schema for the model")) -> str:
-        output = process_prompts_common(self.model, self.tokenizer, json.loads(input_prompt), json.loads(input_schema))
+        output = process_prompts_common(model, tokenizer, json.loads(input_prompt), json.loads(input_schema))
         output = json.dumps(output)
         return output
 
