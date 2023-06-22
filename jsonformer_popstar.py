@@ -52,10 +52,33 @@ heartbeat_thread.daemon = True
 heartbeat_thread.start()
 
 
-model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+model_name = "tiiuae/falcon-7b-instruct"
+
+import transformers, torch
 
 tokenizer = AutoTokenizer.from_pretrained(model_name)
+pipeline = transformers.pipeline(
+    "text-generation",
+    model=model_name,
+    tokenizer=tokenizer,
+    torch_dtype=torch.bfloat16,
+    trust_remote_code=True,
+    device_map="auto",
+)
+
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+
+system_directive = "Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality."
+max_length = 2048
+
+sequences = pipeline(
+    system_directive,
+    max_length=max_length,
+    do_sample=True,
+    top_k=10,
+    num_return_sequences=1,
+    eos_token_id=tokenizer.eos_token_id,
+)
 
 schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
@@ -210,7 +233,7 @@ def process_prompts(prompts):
 
         for new_schema in separated_schema:
             with tracer.start_as_current_span("process_new_schema"):
-                jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=2048)
+                jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=max_length)
                 logger.debug(f"process_new_schema: {new_schema}")
 
             with tracer.start_as_current_span("jsonformer_generate"):
