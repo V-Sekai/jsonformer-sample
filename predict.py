@@ -46,14 +46,14 @@ def initialize_model_and_tokenizer():
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     return model, tokenizer
 
-import cog
+from cog import BasePredictor, Input
 
-class Predictor(cog.Predictor):
+class Predictor(BasePredictor):
     def setup(self):
         pass
 
-    @cog.input("prompt", type=str, help="Input prompt for the model")
-    def predict(self, prompt):
+    def predict(self, 
+        prompt: str = Input(description="Input prompt for the model")) -> str:
         input_list = prompt
         result = process_prompts_common(input_list)
         return result
