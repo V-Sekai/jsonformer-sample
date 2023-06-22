@@ -31,7 +31,7 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
     return merged_data
 
 def initialize_model_and_tokenizer():
-    model_name = "philschmid/flan-ul2-20b-fp16"
+    model_name = "lmsys/fastchat-t5-3b-v1.0"
     from transformers import AutoTokenizer, T5ForConditionalGeneration 
     model = T5ForConditionalGeneration.from_pretrained(model_name)
     model.config.use_cache = True

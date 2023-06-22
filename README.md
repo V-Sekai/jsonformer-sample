@@ -21,3 +21,4 @@ python predict.py
 ## Referencse
 
 * https://github.com/replicate/cog
+* https://techcrunch.com/2022/04/28/the-emerging-types-of-language-models-and-why-they-matter/
