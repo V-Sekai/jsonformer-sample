@@ -62,9 +62,10 @@ class Predictor(BasePredictor):
     def predict(self,
                 input_prompt: str = Input(description="Input prompt for the model"),
                 input_schema: str = Input(description="Input schema for the model")) -> str:
-        output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
-        output = json.dumps(output)
-        return output
+        with tracer.start_as_current_span("run_jsonformer"):
+            output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
+            output = json.dumps(output)
+            return output
 
 
 def gradio_interface(input_prompt, input_schema):
@@ -101,9 +102,9 @@ if __name__ == "__main__":
         },
         "item_description": {
             "type": "string",
-            "minLength": 50,
+            "minLength": 10,
             "maxLength": 100,
-            "description": "A brief description of the item, between 50 and 100 characters long."
+            "description": "A brief description of the item."
         }
     },
     "required": ["name", "item_description"]
