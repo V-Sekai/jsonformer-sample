@@ -9,7 +9,7 @@ from typing import Any, Dict, List, Optional, Union
 
 class JsonformerUtils:
     @staticmethod
-    def break_apart_schema(schema: str, parent_required: Optional[List[str]] = None) -> List[Dict[str, Any]]:
+    def break_apart_schema(schema: Dict[str, Any], parent_required: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """
         Breaks apart a JSON schema into smaller schemas.
 
@@ -17,14 +17,9 @@ class JsonformerUtils:
         :param parent_required: A list of required properties from the parent schema.
         :return: A list of smaller JSON schemas.
         """
-        schema_dict = {}
-        if isinstance(schema, dict):
-            schema_dict = schema
-        else:
-            schema_dict = json.loads(schema)
         parent_required = parent_required or []
-        properties = schema_dict["properties"]
-        required = schema_dict.get("required", [])
+        properties = schema["properties"]
+        required = schema.get("required", [])
         result = []
 
         def process_items(item: Union[Dict[str, Any], Any], required: List[str]) -> Union[Dict[str, Any], Any]:

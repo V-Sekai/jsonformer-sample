@@ -15,12 +15,34 @@ from typing import Any, Dict
 
 import json
 
-def process_prompts_common(model, tokenizer, prompt: str, schema_dictionary: Dict[str, Any]) -> str:
+def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict[str, Any]) -> str:
     if not torch.cuda.is_available():
         raise Exception("This function requires a GPU on a Linux system.")
-    with tracer.start_as_current_span("process_new_schema"):
-        jsonformer = Jsonformer(model, tokenizer, schema_dictionary, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-    return jsonformer()
+
+    merged_data = {}
+    separated_schema = JsonformerUtils.break_apart_schema(schema)
+    updated_prompt = prompt
+    added_keys = set()
+
+    with tracer.start_as_current_span("process_schema"):
+        for new_schema in separated_schema:
+            with tracer.start_as_current_span("process_new_schema"):
+                jsonformer = Jsonformer(model, tokenizer, new_schema, updated_prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+
+            generated_data = {}
+            with tracer.start_as_current_span("jsonformer_generate"):
+                generated_data = jsonformer()
+
+            for key, value in generated_data.items():
+                if key not in merged_data:
+                    merged_data[key] = value
+                else:
+                    if key not in added_keys:
+                        updated_prompt += f" {key}: {value}"
+                        added_keys.add(key)
+    with tracer.start_as_current_span("process_validator"):
+        final_out = Jsonformer(model, tokenizer, new_schema, merged_data, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+        return final_out()
 
 
 from transformers import AutoTokenizer, T5ForConditionalGeneration
