@@ -51,4 +51,26 @@ class Predictor(BasePredictor):
         input_prompt: str = Input(description="Input prompt for the model"),
         input_schema: str = Input(description="Input schema for the model")) -> str:
         output = process_prompts_common(self.model, self.tokenizer, input_prompt, input_schema)
+        output = json.dumps(output)
         return validate(output, schema=input_schema)
+
+import gradio as gr
+
+def gradio_interface(input_prompt, input_schema):
+    predictor = Predictor()
+    predictor.setup()
+    result = predictor.predict(input_prompt, input_schema)
+    return json.loads(result)
+
+if __name__ == "__main__":
+    iface = gr.Interface(
+        fn=gradio_interface,
+        inputs=[
+            gr.inputs.Textbox(lines=3, label="Input Prompt"),
+            gr.inputs.Textbox(lines=5, label="Input Schema"),
+        ],
+        outputs=gr.outputs.JSON(label="Generated JSON"),
+        title="JSONFormer with Gradio",
+        description="Generate JSON data based on input prompt and schema.",
+    )
+    iface.launch()

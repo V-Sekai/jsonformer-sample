@@ -6,4 +6,4 @@ bitsandbytes
 optimum
 opentelemetry-api
 opentelemetry-sdk
-opentelemetry-exporter
+gradio
