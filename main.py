@@ -104,6 +104,20 @@ if __name__ == "__main__":
                 """
                 {
                     "$schema": "http://json-schema.org/draft-07/schema#",
+                    "type": "object",
+                    "properties": {
+                        "name": {
+                        "type": "string"
+                        },
+                        "price": {
+                        "type": "integer"
+                        }
+                    }
+                }
+                """,
+                """
+                {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
                     "title": "Json schema property validation status.",
                     "type": "array",
                     "items": {
