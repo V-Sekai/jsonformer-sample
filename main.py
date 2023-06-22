@@ -3,17 +3,22 @@
 # jsonformer_test.py
 # SPDX-License-Identifier: MIT
 
+import os
+import sys
+
 from jsonformer import Jsonformer
 from lib.jsonformer_utils import JsonformerUtils
 from lib.generator_utils import setup_tracer
 from transformers import AutoTokenizer, T5ForConditionalGeneration
 import gradio as gr
-import json
+import json, torch
 
 tracer = setup_tracer()
 MAX_STRING_TOKEN_LENGTH = 2048
 
 def process_prompts_common(model, tokenizer, prompt, schema) -> str:
+    if not torch.cuda.is_available():
+        raise Exception("This function requires a GPU on a Linux system.")
     merged_data = {}
     separated_schema = JsonformerUtils.break_apart_schema(schema)
     with tracer.start_as_current_span("process_schema"):
