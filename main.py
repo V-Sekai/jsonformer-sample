@@ -88,47 +88,29 @@ if __name__ == "__main__":
             [
                 "Generate a wand. It is 5 dollars.",
                 """\
-
-                {
+{
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
     "properties": {
         "name": {
             "type": "string",
-            "minLength": 1,
-            "maxLength": 100,
-            "enum": ["Option A", "Option B", "Option C"]
+            "minLength": 3,
+            "maxLength": 10
+        },
+        "item_description": {
+            "type": "string",
+            "minLength": 50,
+            "maxLength": 100
         },
         "price": {
             "type": "integer",
             "minimum": 0,
             "maximum": 1000000
-        },
-        "items": {
-            "type": "array",
-            "minItems": 1,
-            "maxItems": 5,
-            "items": {
-                "type": "object",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "minimum": 1
-                    },
-                    "value": {
-                        "type": "string",
-                        "minLength": 1,
-                        "maxLength": 50,
-                        "enum": ["Value 1", "Value 2", "Value 3", "Value 4", "Value 5"]
-                    }
-                },
-                "required": ["id", "value"]
-            },
-            "uniqueItems": true
         }
     },
-    "required": ["name", "price", "items"]
-}"""
+    "required": ["name", "price"]
+}
+"""
             ],
         ]
 
