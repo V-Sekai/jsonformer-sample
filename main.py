@@ -6,12 +6,13 @@
 from jsonformer import Jsonformer
 from lib.jsonformer_utils import JsonformerUtils
 from lib.generator_utils import setup_tracer
+from transformers import AutoTokenizer, T5ForConditionalGeneration
+import gradio as gr
+import json
 
 tracer = setup_tracer()
-
 MAX_STRING_TOKEN_LENGTH = 2048
 
-import json 
 
 def process_prompts_common(model, tokenizer, prompt, schema) -> str:
     merged_data = {}
@@ -29,26 +30,27 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
 
     return merged_data
 
+
 model_name = "philschmid/flan-ul2-20b-fp16"
-from transformers import AutoTokenizer, T5ForConditionalGeneration 
 model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
 model.config.use_cache = True
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
 from optimum.bettertransformer import BetterTransformer
 model = BetterTransformer.transform(model)
-tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 from cog import BasePredictor, Input
 from jsonschema import validate
 
+
 class Predictor(BasePredictor):
-    def predict(self, 
-        input_prompt: str = Input(description="Input prompt for the model"),
-        input_schema: str = Input(description="Input schema for the model")) -> str:
+    def predict(self,
+                input_prompt: str = Input(description="Input prompt for the model"),
+                input_schema: str = Input(description="Input schema for the model")) -> str:
         output = process_prompts_common(model, tokenizer, json.loads(input_prompt), json.loads(input_schema))
         output = json.dumps(output)
         return output
 
-import gradio as gr
 
 def gradio_interface(input_prompt, input_schema):
     predictor = Predictor()
@@ -68,7 +70,7 @@ if __name__ == "__main__":
         title="JSONFormer with Gradio",
         description="Generate JSON data based on input prompt and schema.",
         examples=[
-            ['Generate a wand. It is 5 dollars.', '{"$schema":"http://json-schema.org/draft-07/schema#","title":"Avatar Prop","type":"object","properties":{"id":{"description":"Unique identifier for the avatar prop."}}}"'],
+            ['Generate a wand. It is 5 dollars.', '{"$schema":"http://json-schema.org/draft-07/schema#","title":"Avatar Prop","type":"object","properties":{"id":{"description":"Unique identifier for the avatar prop."}}}'],
             [
                 '{$schema":"http://json-schema.org/draft-07/schema#","title":"Avatar Prop","type":"object","properties":{"id":{"description":"Unique identifier for the avatar prop.}',
                 '{"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"$schema": {"type": "string"}, "type": {"type": "string"}, "properties": {"type": "object", "propertyNames": {"type": "string"}, "additionalProperties": {"type": "object", "required": ["type", "description"], "properties": {"type": {"type": "string", "enum": ["string", "number", "boolean", "object", "array"]}, "description": {"type": "string", "minLength": 1, "maxLength": 1000}}, "additionalProperties": false}}}, "required": ["type", "properties"], "additionalProperties": false}'
@@ -76,5 +78,3 @@ if __name__ == "__main__":
         ],
     )
     iface.launch(share=True)
-
-    
