@@ -1,3 +1,8 @@
+# Copyright (c) 2018-present. This file is part of V-Sekai https://v-sekai.org/.
+# SaracenOne & K. S. Ernest (Fire) Lee & Lyuma & MMMaellon & Contributors
+# vsk_jsonformer_anime_personality.py
+# SPDX-License-Identifier: MIT
+
 from transformers import AutoModelForCausalLM, AutoTokenizer
 from jsonformer import Jsonformer
 from lib.jsonformer_utils import JsonformerUtils
@@ -44,13 +49,22 @@ def get_input_list():
 input_list = get_input_list()
 process_prompts(input_list)
 
+model_name = "philschmid/flan-ul2-20b-fp16"
+tokenizer = AutoTokenizer.from_pretrained(model_name)
+
+import torch
+
+if not torch.cuda.is_available():
+    raise RuntimeError("This script requires a GPU to run.")
+
+from transformers import AutoTokenizer, T5ForConditionalGeneration 
+
+model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True) 
+model.config.use_cache = True
+
+MAX_STRING_TOKEN_LENGTH = 2048
 
 def process_prompts_2(prompts):
-    model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
-    model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
-    tokenizer = AutoTokenizer.from_pretrained(model_name)
-
-    MAX_STRING_TOKEN_LENGTH = 2048
     merged_data = {}
     separated_schema = JsonformerUtils.break_apart_schema(PopstarUtils.get_schema())
 
