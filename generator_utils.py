@@ -3,7 +3,6 @@
 # utils.py
 # SPDX-License-Identifier: MIT
 
-import logging
 from opentelemetry import trace
 from opentelemetry.sdk.trace import TracerProvider
 from opentelemetry.sdk.trace.export import (
@@ -14,18 +13,6 @@ from opentelemetry.sdk.resources import Resource
 from opentelemetry.semconv.resource import ResourceAttributes
 import threading
 import time
-
-
-def setup_logger():
-    logger = logging.getLogger('custom_logger')
-    logger.setLevel(logging.INFO)
-    file_handler = logging.FileHandler('output.log')
-    formatter = logging.Formatter('%(asctime)s - %(name)s - %(levelname)s - %(message)s')
-    file_handler.setFormatter(formatter)
-    logger.addHandler(file_handler)
-    logger.propagate = False
-    return logger
-
 
 def setup_tracer():
     tracer = trace.get_tracer(__name__)
