@@ -5,7 +5,6 @@
 
 from jsonformer import Jsonformer
 from jsonformer_utils import JsonformerUtils
-from jsonschema import Draft7Validator
 from generator_utils import setup_tracer
 
 tracer = setup_tracer()
@@ -32,7 +31,7 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
 
 model_name = "philschmid/flan-ul2-20b-fp16"
 from transformers import AutoTokenizer, T5ForConditionalGeneration 
-model = T5ForConditionalGeneration.from_pretrained(model_name)
+model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
 model.config.use_cache = True
 from optimum.bettertransformer import BetterTransformer
 model = BetterTransformer.transform(model)
