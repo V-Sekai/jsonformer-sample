@@ -62,7 +62,7 @@ if not torch.cuda.is_available():
 
 model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True) 
 
-max_length = 2048
+max_length = 512
 
 schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
