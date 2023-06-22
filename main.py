@@ -35,7 +35,6 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
 from transformers import AutoModelForCausalLM, AutoTokenizer
 model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
 model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
-model = BetterTransformer.transform(model)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 from optimum.bettertransformer import BetterTransformer
