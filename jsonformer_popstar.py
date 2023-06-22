@@ -76,9 +76,37 @@ schema = {
       "maxLength": 100
     },
     "avatar": {
-      "type": "string",
-      "enum": ["2D", "3D"],
-      "description": "A 2D or 3D digital representation of the VTuber, often designed with unique features and characteristics."
+      "type": "object",
+      "properties": {
+        "appearanceType": {
+          "type": "string",
+          "enum": ["2D", "3D"],
+          "description": "A 2D or 3D digital representation of the VTuber, often designed with unique features and characteristics."
+        },
+        "appearance": {
+          "type": "string",
+          "description": "A description of the avatar's physical appearance, including clothing, hair, and other features."
+        },
+        "personality": {
+          "type": "string",
+          "description": "The personality traits of the avatar, such as mischievous, party-going, or underachiever."
+        },
+        "instrument": {
+          "type": "string",
+          "description": "The musical instrument played by the avatar in the virtual band."
+        },
+        "animationStyle": {
+          "type": "string",
+          "enum": ["hand-drawn", "computer-generated", "puppetry"],
+          "description": "The style of animation used to depict the avatar, such as hand-drawn, computer-generated, or puppetry."
+        },
+        "voiceType": {
+          "type": "string",
+          "enum": ["human", "synthesized"],
+          "description": "The type of voice used for the avatar, either human or synthesized."
+        }
+      },
+      "required": ["appearanceType", "appearance", "personality", "instrument", "animationStyle", "voiceType"]
     },
     "uniqueIdentifier": {
       "type": "string",
@@ -134,7 +162,7 @@ schema = {
     "knowledge": {
       "type": "string",
       "description": "The specific area of expertise or knowledge of the personality."
-    },
+    }
   },
   "required": [
     "name",
@@ -151,6 +179,7 @@ schema = {
     "merchandise"
   ]
 }
+
 merged_data = {}
 from jsonformer_utils import JsonformerUtils
 
