@@ -4,7 +4,6 @@
 # SPDX-License-Identifier: MIT
 
 from jsonformer import Jsonformer
-from lib.jsonformer_utils import JsonformerUtils
 from lib.generator_utils import setup_tracer
 import json, torch
 
@@ -18,32 +17,11 @@ import json
 def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict[str, Any]) -> str:
     if not torch.cuda.is_available():
         raise Exception("This function requires a GPU on a Linux system.")
-
-    merged_data = {}
-    separated_schema = JsonformerUtils.break_apart_schema(schema)
-    updated_prompt = prompt
-    added_keys = set()
-
     with tracer.start_as_current_span("process_schema"):
-        for new_schema in separated_schema:
-            with tracer.start_as_current_span("process_new_schema"):
-                jsonformer = Jsonformer(model, tokenizer, new_schema, updated_prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-
-            generated_data = {}
-            with tracer.start_as_current_span("jsonformer_generate"):
-                generated_data = jsonformer()
-
-            for key, value in generated_data.items():
-                if key not in merged_data:
-                    merged_data[key] = value
-                else:
-                    if key not in added_keys:
-                        updated_prompt += f" {key}: {value}"
-                        added_keys.add(key)
-    with tracer.start_as_current_span("process_validator"):
-        final_out = Jsonformer(model, tokenizer, new_schema, merged_data, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-        return final_out()
-
+        with tracer.start_as_current_span("process_new_schema"):
+            jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+            return jsonformer()
+    
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
@@ -71,8 +49,8 @@ def gradio_interface(input_prompt, input_schema):
 
 if __name__ == "__main__":
     
-    input_prompt_str ="""This emote represents a catgirl face with cat ears and a happy expression."""
-    input_schema_str = """{
+    input_prompt_str = "This emote represents a catgirl face with cat ears and a happy expression."
+    input_schema_str = json.dumps({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "description": "A schema representing an animation with a name, a description, and a transition trigger. The animation occurs after the specified trigger.",
@@ -116,7 +94,7 @@ if __name__ == "__main__":
             }
         },
         "required": ["name", "animation_description", "transition_trigger"]
-    }"""
+    })
     import gradio as gr
     iface = gr.Interface(
         fn=gradio_interface,
@@ -127,5 +105,5 @@ if __name__ == "__main__":
         outputs=gr.components.JSON(label="Generated JSON"),
         title="JSONFormer with Gradio",
         description="Generate JSON data based on input prompt and schema.",
-        examples = [[input_prompt_str, json.loads(input_schema_str)]])
+        examples = [[input_prompt_str, input_schema_str]])
     iface.launch(share=True)
