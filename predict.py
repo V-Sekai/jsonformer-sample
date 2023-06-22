@@ -41,6 +41,7 @@ def initialize_model_and_tokenizer():
     return model, tokenizer
 
 from cog import BasePredictor, Input
+from jsonschema import validate
 
 class Predictor(BasePredictor):
     def setup(self):
@@ -49,5 +50,5 @@ class Predictor(BasePredictor):
     def predict(self, 
         input_prompt: str = Input(description="Input prompt for the model"),
         input_schema: str = Input(description="Input schema for the model")) -> str:
-        output = json.dumps(process_prompts_common(self.model, self.tokenizer, input_prompt, input_schema))
-        return output
+        output = process_prompts_common(self.model, self.tokenizer, input_prompt, input_schema)
+        return validate(output, schema=input_schema)
