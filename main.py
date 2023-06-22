@@ -3,9 +3,6 @@
 # jsonformer_test.py
 # SPDX-License-Identifier: MIT
 
-import os
-import sys
-
 from jsonformer import Jsonformer
 from lib.jsonformer_utils import JsonformerUtils
 from lib.generator_utils import setup_tracer
@@ -15,7 +12,9 @@ import json, torch
 tracer = setup_tracer()
 MAX_STRING_TOKEN_LENGTH = 2048
 
-def process_prompts_common(model, tokenizer, prompt, schema) -> str:
+from typing import Any, Dict
+
+def process_prompts_common(model, tokenizer, prompt: str, schema: Dict[str, Any]) -> str:
     if not torch.cuda.is_available():
         raise Exception("This function requires a GPU on a Linux system.")
 
@@ -40,11 +39,21 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
                     if key not in added_keys:
                         updated_prompt += f" {key}: {value}"
                         added_keys.add(key)
-    
+
+    validation_schema = {
+        "type": "object",
+        "properties": schema["properties"],
+        "required": schema.get("required", [])
+    }
+    validation_prompt = f"Is this JSON valid according to the schema? {merged_data} Schema: {validation_schema}"
+    with tracer.start_as_current_span("jsonformer_validator"):
+        jsonformer_validator = Jsonformer(model, tokenizer, validation_schema, validation_prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+
+        validation_result = jsonformer_validator()
+        if validation_result.get("valid") != True:
+            raise Exception(f"Generated JSON is not valid according to the schema: {validation_result.get('error')}")
+
     return merged_data
-
-
-
 
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -111,10 +120,11 @@ if __name__ == "__main__":
 }
 """],
 ["""This emote represents a catgirl face with cat ears and a happy expression.""",
-"""{
+"""\
+{
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
-    "description": "A schema representing an animation with a name, a description, and a transition trigger.",
+    "description": "A schema representing an animation with a name, a description, and a transition trigger. The animation occurs after the specified trigger.",
     "properties": {
         "name": {
             "type": "string",
@@ -128,14 +138,19 @@ if __name__ == "__main__":
             "maxLength": 100,
             "description": "A brief description of the animation."
         },
-        "duration_frames": {
-            "type": "integer",
-            "description": "A duration of the animation in frames at 30 frames per second."
+        "duration_seconds": {
+            "type": "number",
+            "minimum": 0,
+            "description": "A duration of the animation in seconds."
         },
         "transition_trigger": {
             "type": "object",
-            "description": "A trigger for transitioning between animations in the animation tree.",
+            "description": "A trigger for transitioning between animations in the animation tree. The animation occurs after this trigger.",
             "properties": {
+                "trigger_condition": {
+                    "type": "string",
+                    "description": "The condition that must be met for the transition to occur."
+                },
                 "from_animation": {
                     "type": "string",
                     "description": "The name of the animation to transition from."
@@ -143,13 +158,9 @@ if __name__ == "__main__":
                 "to_animation": {
                     "type": "string",
                     "description": "The name of the animation to transition to."
-                },
-                "trigger_condition": {
-                    "type": "string",
-                    "description": "The condition that must be met for the transition to occur."
                 }
             },
-            "required": ["from_animation", "to_animation", "trigger_condition"]
+            "required": ["trigger_condition", "from_animation", "to_animation"]
         }
     },
     "required": ["name", "animation_description", "transition_trigger"]
