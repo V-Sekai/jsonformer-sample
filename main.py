@@ -43,9 +43,16 @@ class Predictor(BasePredictor):
             output_again_to_mix = process_prompts_common(model, tokenizer, output, input_schema)
             return output_again_to_mix
 
+def gradio_interface(input_prompt, input_schema):
+    predictor = Predictor()
+    predictor.setup()
+    result = predictor.predict(input_prompt, input_schema)
+    return result
+
 if __name__ == "__main__":
-    input_prompt_str: str ="""This emote represents a catgirl face with cat ears and a happy expression."""
-    input_schema_str: list[str]  = """{
+    
+    input_prompt ="""This emote represents a catgirl face with cat ears and a happy expression."""
+    input_schema = """{
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "description": "A schema representing an animation with a name, a description, and a transition trigger. The animation occurs after the specified trigger.",
@@ -89,7 +96,15 @@ if __name__ == "__main__":
         },
         "required": ["name", "animation_description", "transition_trigger"]
     }"""
-    print(input_prompt_str)
-    print(input_schema_str)
-    output = process_prompts_common(model, tokenizer, input_prompt_str, json.loads(input_schema_str))
-    print(output)
+    import gradio as gr
+    iface = gr.Interface(
+        fn=gradio_interface,
+        inputs=[
+            gr.components.Textbox(lines=3, label="Input Prompt"),
+            gr.components.Textbox(lines=5, label="Input Schema"),
+        ],
+        outputs=gr.components.JSON(label="Generated JSON"),
+        title="JSONFormer with Gradio",
+        description="Generate JSON data based on input prompt and schema.",
+        examples = [[input_prompt, input_schema]])
+    iface.launch(share=True)
