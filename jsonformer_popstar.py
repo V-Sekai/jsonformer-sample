@@ -240,11 +240,13 @@ def process_prompts(prompts):
 
 input_list = ["""
 Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality.
-Sophia is creating a new avatar Grimes.
-Claire Elise Boucher (/buːˈʃeɪ/ boo-SHAY;[2] born March 17, 1988), known professionally as Grimes, is a Canadian musician, singer, songwriter, and record producer.[3][4] Her early work has been described as extending from "lo-fi R&B" to futuristic dance-pop,[5] and has incorporated influences from electronic music, hip hop, and rock. Her lyrics often touch on science fiction and feminist themes. She has released five studio albums.
+Sophia is creating a new avatar Lily.
+Introducing Lily Aurora Hart, a multi-talented artist hailing from the vibrant city of Melbourne, Australia. Born on August 25, 1991, Lily has made her mark as a singer, composer, and music producer, with a unique sound that fuses elements of synth-pop, indie rock, and electronic dance music. Her thought-provoking lyrics often explore themes of futurism, empowerment, and environmental consciousness. To date, she has released four studio albums, each showcasing her growth as an artist.
 
-Born and raised in Vancouver (later moving to Montreal), Grimes began releasing music independently in the late 2000s, releasing two albums, Geidi Primes and Halfaxa, in 2010 on Arbutus Records. She subsequently signed with 4AD and rose to prominence with the release of her third studio album, Visions, in 2012. Visions includes the singles "Genesis" and "Oblivion" and received the Canadian music industry Juno Award for Electronic Album of the Year.[6] Following this, her fourth studio album, Art Angels, was released in 2015 and received critical praise as several publications named it the best album of the year.[7] Her fifth studio album, Miss Anthropocene, was released in 2020.
+Lily's journey began in the early 2010s when she started sharing her music online through various platforms. She independently released her debut album, Celestial Echoes, in 2013, which caught the attention of the indie label, Solaris Records. Under their guidance, she released her sophomore album, Neon Dreams, in 2015, featuring hit singles "Stardust" and "Elysium." The album garnered critical acclaim and earned her the ARIA Award for Best Dance Release.
 
-Outside of music, Grimes had a voice role in the 2020 action role-playing video game Cyberpunk 2077 and is a judge on the music competition game show Alter Ego. 
+In 2018, Lily unveiled her third studio album, Quantum Heart, further solidifying her status as a trailblazer in the music industry. Her most recent album, Terra Nova, was released in 2021, showcasing her commitment to addressing climate change and promoting sustainability through her art.
+
+Apart from her musical achievements, Lily has ventured into voice acting, lending her talents to the 2022 animated film, Starbound Odyssey. She also serves as a mentor on the popular reality TV show, Soundwave Showdown, where she helps aspiring musicians hone their skills and achieve their dreams.
 """]
 process_prompts(input_list)
