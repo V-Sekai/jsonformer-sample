@@ -91,24 +91,22 @@ if __name__ == "__main__":
 {
     "$schema": "http://json-schema.org/draft-07/schema#",
     "type": "object",
+    "description": "A schema representing an item with a name and a description.",
     "properties": {
         "name": {
             "type": "string",
             "minLength": 3,
-            "maxLength": 10
+            "maxLength": 10,
+            "description": "The name of the item, between 3 and 10 characters long."
         },
         "item_description": {
             "type": "string",
             "minLength": 50,
-            "maxLength": 100
-        },
-        "price": {
-            "type": "integer",
-            "minimum": 0,
-            "maximum": 1000000
+            "maxLength": 100,
+            "description": "A brief description of the item, between 50 and 100 characters long."
         }
     },
-    "required": ["name", "price"]
+    "required": ["name", "item_description"]
 }
 """
             ],
