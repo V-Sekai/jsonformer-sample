@@ -3,7 +3,7 @@
 # jsonformer_test.py
 # SPDX-License-Identifier: MIT
 
-from transformers import AutoModelForCausalLM, AutoTokenizer
+from transformers import AutoModelForCausalLM, AutoTokenizer, T5ForConditionalGeneration
 from jsonformer import Jsonformer
 from lib.jsonformer_utils import JsonformerUtils
 from lib.test_utils import TestUtils
@@ -39,35 +39,41 @@ def process_prompts_common(model, tokenizer, input_list):
 
     return merged_data
 
-model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+def initialize_model_and_tokenizer(model_name):
+    import torch
 
-def get_input_list():
-    return ["""
+    if not torch.cuda.is_available():
+        raise RuntimeError("This script requires a GPU to run.")
+
+    if "flan" in model_name:
+        model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
+    else:
+        model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+    tokenizer = AutoTokenizer.from_pretrained(model_name)
+    return model, tokenizer
+
+model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
+model, tokenizer = initialize_model_and_tokenizer(model_name)
+
+input_list = ["""
     Generate a wand. It is 5 dollars.
     """]
-
-input_list = get_input_list()
 process_prompts_common(model, tokenizer, input_list)
 
 model_name = "philschmid/flan-ul2-20b-fp16"
-tokenizer = AutoTokenizer.from_pretrained(model_name)
+model, tokenizer = initialize_model_and_tokenizer(model_name)
 
-import torch
-
-if not torch.cuda.is_available():
-    raise RuntimeError("This script requires a GPU to run.")
-
-from transformers import AutoTokenizer, T5ForConditionalGeneration 
-
-model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True) 
 model.config.use_cache = True
 
-def get_input_list_2():
-    return ["""
-    Generate a wand. It is 5 dollars.
-    """]
+input_list = ["""
+Sophia, an avatar creation expert, helps users craft perfect digital representations to enhance their online presence. She's currently creating a new avatar, Lily Aurora Hart, a multi-talented artist from Melbourne, Australia.
 
-input_list = get_input_list_2()
+Lily's 3D avatar has long purple hair, green eyes, and a futuristic outfit reflecting her passion for futurism and environmental consciousness. Her creative and ambitious personality shines through her human voice and musical talents, including playing the keyboard and synthesizer.
+
+With the unique identifier "LAH_Music," Lily showcases skills in singing, composing, music production, and voice acting. Her backstory revolves around exploring themes of futurism, empowerment, and environmental consciousness through her lyrics.
+
+Focusing on music content, Lily shares her work on YouTube and Twitch. Her fanbase, "Aurora Enthusiasts," supports her artistic and environmental advocacy. Collaborating with various creators, she produces engaging content and offers merchandise featuring her signature futuristic designs.
+
+Sophia's expertise will help Lily's avatar capture her essence, connect with fans, and make a difference through art and environmental advocacy.
+"""]
 process_prompts_common(model, tokenizer, input_list)
