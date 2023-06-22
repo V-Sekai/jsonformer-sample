@@ -101,64 +101,26 @@ if __name__ == "__main__":
                 }"""
             ],
             [
-                """{
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "title": "Avatar Prop",
-                "type": "object",
-                "properties": {
-                    "id": {
-                    "description": "Unique identifier for the avatar prop."
-                    }
-                }
-                }""",
-                """{
-                "$schema": "http://json-schema.org/draft-07/schema#",
-                "type": "object",
-                "properties": {
-                    "$schema": {
-                    "type": "string"
-                    },
-                    "type": {
-                    "type": "string"
-                    },
-                    "properties": {
-                    "type": "object",
-                    "propertyNames": {
-                        "type": "string"
-                    },
-                    "additionalProperties": {
+                """
+                {
+                    "$schema": "http://json-schema.org/draft-07/schema#",
+                    "title": "Json schema property validation status.",
+                    "type": "array",
+                    "items": {
                         "type": "object",
-                        "required": [
-                        "type",
-                        "description"
-                        ],
                         "properties": {
-                        "type": {
+                        "name": {
                             "type": "string",
-                            "enum": [
-                            "string",
-                            "number",
-                            "boolean",
-                            "object",
-                            "array"
-                            ]
+                            "description": "Name of the property"
                         },
                         "description": {
                             "type": "string",
-                            "minLength": 1,
-                            "maxLength": 1000
-                        }
+                            "description": "Description of the property"
                         },
-                        "additionalProperties": false
+                        "required": ["name", "description"]
                     }
-                    }
-                },
-                "required": [
-                    "type",
-                    "properties"
-                ],
-                "additionalProperties": false
-                }"""
+                }
+                """
             ]
             ]
 
