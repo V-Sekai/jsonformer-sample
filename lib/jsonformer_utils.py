@@ -5,38 +5,29 @@
 # SPDX-License-Identifier: MIT
 
 import json
+from typing import Any, Dict, List, Optional, Union
+
 class JsonformerUtils:
     @staticmethod
-    def break_apart_schema(schema, parent_required=None):
+    def break_apart_schema(schema: str, parent_required: Optional[List[str]] = None) -> List[Dict[str, Any]]:
         """
         Breaks apart a JSON schema into smaller schemas.
 
-        :param schema: The input JSON schema.
+        :param schema: The input JSON schema as a string.
         :param parent_required: A list of required properties from the parent schema.
         :return: A list of smaller JSON schemas.
         """
-        
-        if isinstance(schema, str):
-            schema = json.loads(schema)
 
-        if "properties" not in schema:
-            return []
-        
-        def process_items(item, required):
+        def process_items(item: Union[Dict[str, Any], Any], required: List[str]) -> Union[Dict[str, Any], Any]:
             if isinstance(item, dict) and "properties" in item:
                 return JsonformerUtils.break_apart_schema(item, required)
             else:
                 return item
 
-        if "properties" not in schema:
-            return []
-        
-        if "type" not in schema:
-            return []
-
+        schema_dict = json.loads(schema)
         parent_required = parent_required or []
-        properties = schema["properties"]
-        required = schema.get("required", [])
+        properties = schema_dict["properties"]
+        required = schema_dict.get("required", [])
         result = []
 
         for key, value in properties.items():
