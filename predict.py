@@ -14,20 +14,19 @@ MAX_STRING_TOKEN_LENGTH = 2048
 
 import json 
 
-def process_prompts_common(model, tokenizer, input_schema_list) -> str:
+def process_prompts_common(model, tokenizer, prompt, schema) -> str:
     merged_data = {}
-    for prompt, schema in input_schema_list:
-        separated_schema = JsonformerUtils.break_apart_schema(schema)
+    separated_schema = JsonformerUtils.break_apart_schema(schema)
 
-        for new_schema in separated_schema:
-            with tracer.start_as_current_span("process_new_schema"):
-                jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+    for new_schema in separated_schema:
+        with tracer.start_as_current_span("process_new_schema"):
+            jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
 
-            with tracer.start_as_current_span("jsonformer_generate"):
-                generated_data = jsonformer()
+        with tracer.start_as_current_span("jsonformer_generate"):
+            generated_data = jsonformer()
 
-            for key, value in generated_data.items():
-                merged_data[key] = value
+        for key, value in generated_data.items():
+            merged_data[key] = value
 
     return merged_data
 
@@ -44,14 +43,11 @@ def initialize_model_and_tokenizer():
 from cog import BasePredictor, Input
 
 class Predictor(BasePredictor):
-    
-    model, tokenizer = initialize_model_and_tokenizer()
-
     def setup(self):
-        model, tokenizer = initialize_model_and_tokenizer()
+       self.model, self.tokenizer = initialize_model_and_tokenizer()
 
     def predict(self, 
-        input: str = Input(description="Input prompt for the model")) -> str:
-        prompt = json.loads(input)
-        output = json.dumps(process_prompts_common(model, tokenizer, prompt))
+        prompt: str = Input(description="Input prompt for the model"),
+        schema: str = Input(description="Input schema for the model")) -> str:
+        output = json.dumps(process_prompts_common(self.model, self.tokenizer, prompt, schema))
         return output
