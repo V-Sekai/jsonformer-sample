@@ -109,6 +109,51 @@ if __name__ == "__main__":
     },
     "required": ["name", "item_description"]
 }
+"""],
+["""This emote represents a catgirl face with cat ears and a happy expression.""",
+"""{
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "description": "A schema representing an animation with a name, a description, and a transition trigger.",
+    "properties": {
+        "name": {
+            "type": "string",
+            "minLength": 3,
+            "maxLength": 10,
+            "description": "The name of the animation, between 3 and 10 characters long."
+        },
+        "animation_description": {
+            "type": "string",
+            "minLength": 10,
+            "maxLength": 100,
+            "description": "A brief description of the animation."
+        },
+        "duration_frames": {
+            "type": "integer",
+            "description": "A duration of the animation in frames at 30 frames per second."
+        },
+        "transition_trigger": {
+            "type": "object",
+            "description": "A trigger for transitioning between animations in the animation tree.",
+            "properties": {
+                "from_animation": {
+                    "type": "string",
+                    "description": "The name of the animation to transition from."
+                },
+                "to_animation": {
+                    "type": "string",
+                    "description": "The name of the animation to transition to."
+                },
+                "trigger_condition": {
+                    "type": "string",
+                    "description": "The condition that must be met for the transition to occur."
+                }
+            },
+            "required": ["from_animation", "to_animation", "trigger_condition"]
+        }
+    },
+    "required": ["name", "animation_description", "transition_trigger"]
+}
 """
             ],
         ]
