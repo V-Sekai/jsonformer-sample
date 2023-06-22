@@ -12,19 +12,14 @@ tracer = setup_tracer()
 
 MAX_STRING_TOKEN_LENGTH = 2048
 
-def process_prompts_common(model, tokenizer, input_schema_list):
+import json 
+
+def process_prompts_common(model, tokenizer, input_schema_list) -> str:
     merged_data = {}
-
     for prompt, schema in input_schema_list:
-        validator = Draft7Validator(schema)
-        if not validator.is_valid(schema):
-            raise ValueError(f"Invalid schema: {schema}")
-
         separated_schema = JsonformerUtils.break_apart_schema(schema)
 
         for new_schema in separated_schema:
-            if not validator.is_valid(new_schema):
-                raise ValueError(f"Invalid schema: {new_schema}")
             with tracer.start_as_current_span("process_new_schema"):
                 jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
 
@@ -37,7 +32,7 @@ def process_prompts_common(model, tokenizer, input_schema_list):
     return merged_data
 
 def initialize_model_and_tokenizer():
-    model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
+    model_name = "philschmid/flan-ul2-20b-fp16"
     from transformers import AutoModelForCausalLM, AutoTokenizer
     model = AutoModelForCausalLM.from_pretrained(model_name)
     model.config.use_cache = True
@@ -49,11 +44,14 @@ def initialize_model_and_tokenizer():
 from cog import BasePredictor, Input
 
 class Predictor(BasePredictor):
+    
+    model, tokenizer = initialize_model_and_tokenizer()
+
     def setup(self):
-        pass
+        model, tokenizer = initialize_model_and_tokenizer()
 
     def predict(self, 
-        prompt: str = Input(description="Input prompt for the model")) -> str:
-        input_list = prompt
-        result = process_prompts_common(input_list)
-        return result
+        input: str = Input(description="Input prompt for the model")) -> str:
+        prompt = json.loads(input)
+        output = json.dumps(process_prompts_common(model, tokenizer, prompt))
+        return output

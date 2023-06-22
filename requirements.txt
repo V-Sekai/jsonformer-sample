@@ -1,6 +1,5 @@
 torch
 transformers
-jsonschema
 git+https://github.com/V-Sekai/jsonformer.git@98d9f04bad60b445624020a3ab00702e0366381d
 accelerate 
 bitsandbytes
