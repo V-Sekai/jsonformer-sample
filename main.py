@@ -27,11 +27,11 @@ def process_prompts_common(model, tokenizer, prompt: str, schema: Dict[str, Any]
         for new_schema in separated_schema:
             with tracer.start_as_current_span("process_new_schema"):
                 jsonformer = Jsonformer(model, tokenizer, new_schema, updated_prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-            
+
             generated_data = {}
             with tracer.start_as_current_span("jsonformer_generate"):
                 generated_data = jsonformer()
-            
+
             for key, value in generated_data.items():
                 if key not in merged_data:
                     merged_data[key] = value
@@ -39,21 +39,12 @@ def process_prompts_common(model, tokenizer, prompt: str, schema: Dict[str, Any]
                     if key not in added_keys:
                         updated_prompt += f" {key}: {value}"
                         added_keys.add(key)
-
-    validation_schema = {
-        "type": "object",
-        "properties": schema["properties"],
-        "required": schema.get("required", [])
-    }
-    validation_prompt = f"Is this JSON valid according to the schema? {merged_data} Schema: {validation_schema}"
+    print(updated_prompt)
     with tracer.start_as_current_span("jsonformer_validator"):
-        jsonformer_validator = Jsonformer(model, tokenizer, validation_schema, validation_prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-
-        validation_result = jsonformer_validator()
-        if validation_result.get("valid") != True:
-            raise Exception(f"Generated JSON is not valid according to the schema: {validation_result.get('error')}")
-
-    return merged_data
+        print(merged_data)
+        jsonformer_validator = Jsonformer(model, tokenizer, schema, updated_prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+        with tracer.start_as_current_span("validate_generated_data"):
+            return jsonformer_validator()
 
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -73,7 +64,6 @@ class Predictor(BasePredictor):
                 input_schema: str = Input(description="Input schema for the model")) -> str:
         with tracer.start_as_current_span("run_jsonformer"):
             output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
-            output = json.dumps(output)
             return output
 
 
@@ -85,6 +75,55 @@ def gradio_interface(input_prompt, input_schema):
 
 
 if __name__ == "__main__":
+    input_prompt ="""This emote represents a catgirl face with cat ears and a happy expression."""
+    input_schema = """{
+        "$schema": "http://json-schema.org/draft-07/schema#",
+        "type": "object",
+        "description": "A schema representing an animation with a name, a description, and a transition trigger. The animation occurs after the specified trigger.",
+        "properties": {
+            "name": {
+                "type": "string",
+                "minLength": 3,
+                "maxLength": 10,
+                "description": "The name of the animation, between 3 and 10 characters long."
+            },
+            "animation_description": {
+                "type": "string",
+                "minLength": 10,
+                "maxLength": 100,
+                "description": "A brief description of the animation."
+            },
+            "duration_seconds": {
+                "type": "number",
+                "minimum": 0,
+                "description": "A duration of the animation in seconds."
+            },
+            "transition_trigger": {
+                "type": "object",
+                "description": "A trigger for transitioning between animations in the animation tree. The animation occurs after this trigger.",
+                "properties": {
+                    "trigger_condition": {
+                        "type": "string",
+                        "description": "The condition that must be met for the transition to occur."
+                    },
+                    "from_animation": {
+                        "type": "string",
+                        "description": "The name of the animation to transition from."
+                    },
+                    "to_animation": {
+                        "type": "string",
+                        "description": "The name of the animation to transition to."
+                    }
+                },
+                "required": ["trigger_condition", "from_animation", "to_animation"]
+            }
+        },
+        "required": ["name", "animation_description", "transition_trigger"]
+    }"""
+    # output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
+    # print(output)
+    # output = json.dumps(output)
+    # print(output)
     iface = gr.Interface(
         fn=gradio_interface,
         inputs=[
@@ -94,80 +133,5 @@ if __name__ == "__main__":
         outputs=gr.components.JSON(label="Generated JSON"),
         title="JSONFormer with Gradio",
         description="Generate JSON data based on input prompt and schema.",
-        examples = [
-            [
-                "Generate a wand. It is 5 dollars.",
-                """\
-{
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "description": "A schema representing an item with a name and a description.",
-    "properties": {
-        "name": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 10,
-            "description": "The name of the item, between 3 and 10 characters long."
-        },
-        "item_description": {
-            "type": "string",
-            "minLength": 10,
-            "maxLength": 100,
-            "description": "A brief description of the item."
-        }
-    },
-    "required": ["name", "item_description"]
-}
-"""],
-["""This emote represents a catgirl face with cat ears and a happy expression.""",
-"""\
-{
-    "$schema": "http://json-schema.org/draft-07/schema#",
-    "type": "object",
-    "description": "A schema representing an animation with a name, a description, and a transition trigger. The animation occurs after the specified trigger.",
-    "properties": {
-        "name": {
-            "type": "string",
-            "minLength": 3,
-            "maxLength": 10,
-            "description": "The name of the animation, between 3 and 10 characters long."
-        },
-        "animation_description": {
-            "type": "string",
-            "minLength": 10,
-            "maxLength": 100,
-            "description": "A brief description of the animation."
-        },
-        "duration_seconds": {
-            "type": "number",
-            "minimum": 0,
-            "description": "A duration of the animation in seconds."
-        },
-        "transition_trigger": {
-            "type": "object",
-            "description": "A trigger for transitioning between animations in the animation tree. The animation occurs after this trigger.",
-            "properties": {
-                "trigger_condition": {
-                    "type": "string",
-                    "description": "The condition that must be met for the transition to occur."
-                },
-                "from_animation": {
-                    "type": "string",
-                    "description": "The name of the animation to transition from."
-                },
-                "to_animation": {
-                    "type": "string",
-                    "description": "The name of the animation to transition to."
-                }
-            },
-            "required": ["trigger_condition", "from_animation", "to_animation"]
-        }
-    },
-    "required": ["name", "animation_description", "transition_trigger"]
-}
-"""
-            ],
-        ]
-
-    )
+        examples = [[input_prompt, input_schema]])
     iface.launch(share=True)
