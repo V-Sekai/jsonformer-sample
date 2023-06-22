@@ -14,5 +14,6 @@ build:
     - opentelemetry-sdk
     - cog
     - jsonschema
+    - scipy
 
 predict: "predict.py:Predictor"

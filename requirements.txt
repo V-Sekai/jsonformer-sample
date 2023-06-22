@@ -7,3 +7,4 @@ optimum
 opentelemetry-api
 opentelemetry-sdk
 gradio
+scipy
