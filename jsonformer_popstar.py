@@ -181,56 +181,7 @@ def process_prompts(prompts):
                 merged_data[key] = value
 
 input_list = ["""
-
-{
-  "name": "Tim Cook",
-  "title": "CEO of Apple Inc.",
-  "born": "November 1, 1960",
-  "birthplace": "Mobile, Alabama, United States",
-  "education": {
-    "bachelor_degree": {
-      "university": "Auburn University",
-      "major": "Industrial Engineering",
-      "graduation_year": 1982
-    },
-    "master_degree": {
-      "university": "Duke University",
-      "major": "Master of Business Administration (MBA)",
-      "graduation_year": 1988
-    }
-  },
-  "career": [
-    {
-      "position": "Director of North American Fulfillment",
-      "company": "IBM",
-      "start_year": 1994,
-      "end_year": 1997
-    },
-    {
-      "position": "Vice President of Corporate Materials",
-      "company": "Compaq",
-      "start_year": 1997,
-      "end_year": 1998
-    },
-    {
-      "position": "Senior Vice President of Worldwide Operations",
-      "company": "Apple Inc.",
-      "start_year": 1998,
-      "end_year": 2005
-    },
-    {
-      "position": "Chief Operating Officer",
-      "company": "Apple Inc.",
-      "start_year": 2005,
-      "end_year": 2011
-    },
-    {
-      "position": "CEO",
-      "company": "Apple Inc.",
-      "start_year": 2011,
-      "end_year": "present"
-    }
-  ]
-}
+Her name is Pixel. Generate a backstory.
+#passion=music_entertainment; #dream=pop_star; #priority=assist_metaverse_visitors; #knowledge=3OV_plugin_WordPress; #duty=inform_not_pushy; #context: {technical_skills; #passion(#dream); #priority(#knowledge); #duty(#context)}
 """]
 process_prompts(input_list)
