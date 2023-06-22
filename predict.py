@@ -73,4 +73,4 @@ if __name__ == "__main__":
         title="JSONFormer with Gradio",
         description="Generate JSON data based on input prompt and schema.",
     )
-    iface.launch()
+    iface.launch(share=True)

@@ -1,8 +1,6 @@
-# Installation and Running the Sample
+# Installation and Running the Jsonformer Sample
 
-Use cog.
-
-https://github.com/replicate/cog
+This sample has both cog and gradio for future https://replicate.com and https://huggingface.co/ support
 
 ```bash
 python predict.py
@@ -19,3 +17,7 @@ python predict.py
 ```json
 {"$schema":"http://json-schema.org/draft-07/schema#","title":"Avatar Prop","type":"object","properties":{"id":{"description":"Unique identifier for the avatar prop."}}}"
 ```
+
+## Referencse
+
+* https://github.com/replicate/cog
