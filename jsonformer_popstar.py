@@ -61,6 +61,7 @@ if not torch.cuda.is_available():
     raise RuntimeError("This script requires a GPU to run.")
 
 model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True) 
+model.config.use_cache = True
 
 max_length = 512
 
@@ -68,7 +69,6 @@ max_length = 512
 schema = {
   "$schema": "http://json-schema.org/draft-07/schema#",
   "type": "object",
-  "description": "The entire schema must fit in 512 tokens.",
   "properties": {
     "name": {
       "type": "string",
@@ -229,14 +229,14 @@ def process_prompts(prompts):
                 merged_data[key] = value
 
 input_list = ["""
-Sophia, the avatar creation expert, is dedicated to helping users create their perfect digital representation. Sophia believes that a well-crafted avatar can enhance one's online presence and showcase their unique personality.
-Sophia is creating a new avatar Lily.
-Introducing Lily Aurora Hart, a multi-talented artist hailing from the vibrant city of Melbourne, Australia. Born on August 25, 1991, Lily has made her mark as a singer, composer, and music producer, with a unique sound that fuses elements of synth-pop, indie rock, and electronic dance music. Her thought-provoking lyrics often explore themes of futurism, empowerment, and environmental consciousness. To date, she has released four studio albums, each showcasing her growth as an artist.
+Sophia, an avatar creation expert, helps users craft perfect digital representations to enhance their online presence. She's currently creating a new avatar, Lily Aurora Hart, a multi-talented artist from Melbourne, Australia.
 
-Lily's journey began in the early 2010s when she started sharing her music online through various platforms. She independently released her debut album, Celestial Echoes, in 2013, which caught the attention of the indie label, Solaris Records. Under their guidance, she released her sophomore album, Neon Dreams, in 2015, featuring hit singles "Stardust" and "Elysium." The album garnered critical acclaim and earned her the ARIA Award for Best Dance Release.
+Lily's 3D avatar has long purple hair, green eyes, and a futuristic outfit reflecting her passion for futurism and environmental consciousness. Her creative and ambitious personality shines through her human voice and musical talents, including playing the keyboard and synthesizer.
 
-In 2018, Lily unveiled her third studio album, Quantum Heart, further solidifying her status as a trailblazer in the music industry. Her most recent album, Terra Nova, was released in 2021, showcasing her commitment to addressing climate change and promoting sustainability through her art.
+With the unique identifier "LAH_Music," Lily showcases skills in singing, composing, music production, and voice acting. Her backstory revolves around exploring themes of futurism, empowerment, and environmental consciousness through her lyrics.
 
-Apart from her musical achievements, Lily has ventured into voice acting, lending her talents to the 2022 animated film, Starbound Odyssey. She also serves as a mentor on the popular reality TV show, Soundwave Showdown, where she helps aspiring musicians hone their skills and achieve their dreams.
+Focusing on music content, Lily shares her work on YouTube and Twitch. Her fanbase, "Aurora Enthusiasts," supports her artistic and environmental advocacy. Collaborating with various creators, she produces engaging content and offers merchandise featuring her signature futuristic designs.
+
+Sophia's expertise will help Lily's avatar capture her essence, connect with fans, and make a difference through art and environmental advocacy.
 """]
 process_prompts(input_list)
