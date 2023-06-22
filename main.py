@@ -13,21 +13,18 @@ import json
 tracer = setup_tracer()
 MAX_STRING_TOKEN_LENGTH = 2048
 
-
 def process_prompts_common(model, tokenizer, prompt, schema) -> str:
     merged_data = {}
     separated_schema = JsonformerUtils.break_apart_schema(schema)
-
-    for new_schema in separated_schema:
-        with tracer.start_as_current_span("process_new_schema"):
-            jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-
-        with tracer.start_as_current_span("jsonformer_generate"):
-            generated_data = jsonformer()
-
-        for key, value in generated_data.items():
-            merged_data[key] = value
-
+    with tracer.start_as_current_span("process_schema"):
+        for new_schema in separated_schema:
+                with tracer.start_as_current_span("process_new_schema"):
+                    jsonformer = Jsonformer(model, tokenizer, new_schema, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+                generated_data = {}
+                with tracer.start_as_current_span("jsonformer_generate"):
+                    generated_data = jsonformer()
+                for key, value in generated_data.items():
+                    merged_data[key] = value
     return merged_data
 
 
@@ -40,7 +37,6 @@ from optimum.bettertransformer import BetterTransformer
 model = BetterTransformer.transform(model)
 
 from cog import BasePredictor, Input
-from jsonschema import validate
 
 
 class Predictor(BasePredictor):
@@ -56,7 +52,7 @@ def gradio_interface(input_prompt, input_schema):
     predictor = Predictor()
     predictor.setup()
     result = predictor.predict(input_prompt, input_schema)
-    return json.loads(result)
+    return result
 
 
 if __name__ == "__main__":
