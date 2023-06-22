@@ -4,6 +4,7 @@
 # jsonformer_utils.py
 # SPDX-License-Identifier: MIT
 
+import json
 class JsonformerUtils:
     @staticmethod
     def break_apart_schema(schema, parent_required=None):
@@ -14,6 +15,13 @@ class JsonformerUtils:
         :param parent_required: A list of required properties from the parent schema.
         :return: A list of smaller JSON schemas.
         """
+        
+        if isinstance(schema, str):
+            schema = json.loads(schema)
+
+        if "properties" not in schema:
+            return []
+        
         def process_items(item, required):
             if isinstance(item, dict) and "properties" in item:
                 return JsonformerUtils.break_apart_schema(item, required)
@@ -21,6 +29,9 @@ class JsonformerUtils:
                 return item
 
         if "properties" not in schema:
+            return []
+        
+        if "type" not in schema:
             return []
 
         parent_required = parent_required or []

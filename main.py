@@ -47,7 +47,7 @@ class Predictor(BasePredictor):
     def predict(self,
                 input_prompt: str = Input(description="Input prompt for the model"),
                 input_schema: str = Input(description="Input schema for the model")) -> str:
-        output = process_prompts_common(model, tokenizer, json.loads(input_prompt), json.loads(input_schema))
+        output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
         output = json.dumps(output)
         return output
 
