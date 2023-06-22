@@ -68,11 +68,6 @@ if __name__ == "__main__":
                 "maxLength": 100,
                 "description": "A brief description of the animation."
             },
-            "duration_seconds": {
-                "type": "number",
-                "minimum": 0,
-                "description": "A duration of the animation in seconds."
-            },
             "transition_trigger": {
                 "type": "object",
                 "description": "A trigger for transitioning between animations in the animation tree. The animation occurs after this trigger.",
