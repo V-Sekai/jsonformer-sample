@@ -4,8 +4,8 @@
 # SPDX-License-Identifier: MIT
 
 from jsonformer import Jsonformer
-from jsonformer_utils import JsonformerUtils
-from generator_utils import setup_tracer
+from lib.jsonformer_utils import JsonformerUtils
+from lib.generator_utils import setup_tracer
 
 tracer = setup_tracer()
 

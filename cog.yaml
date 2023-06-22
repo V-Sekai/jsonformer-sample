@@ -16,4 +16,4 @@ build:
     - jsonschema
     - scipy
 
-predict: "predict.py:Predictor"
+predict: "main.py:Predictor"
