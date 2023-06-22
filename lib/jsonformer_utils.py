@@ -17,18 +17,21 @@ class JsonformerUtils:
         :param parent_required: A list of required properties from the parent schema.
         :return: A list of smaller JSON schemas.
         """
+        schema_dict = {}
+        if isinstance(schema, dict):
+            schema_dict = schema
+        else:
+            schema_dict = json.loads(schema)
+        parent_required = parent_required or []
+        properties = schema_dict["properties"]
+        required = schema_dict.get("required", [])
+        result = []
 
         def process_items(item: Union[Dict[str, Any], Any], required: List[str]) -> Union[Dict[str, Any], Any]:
             if isinstance(item, dict) and "properties" in item:
                 return JsonformerUtils.break_apart_schema(item, required)
             else:
                 return item
-
-        schema_dict = json.loads(schema)
-        parent_required = parent_required or []
-        properties = schema_dict["properties"]
-        required = schema_dict.get("required", [])
-        result = []
 
         for key, value in properties.items():
             nested_required = value.get("required", [])
