@@ -6,7 +6,6 @@
 from jsonformer import Jsonformer
 from lib.jsonformer_utils import JsonformerUtils
 from lib.generator_utils import setup_tracer
-import gradio as gr
 import json, torch
 
 tracer = setup_tracer()
@@ -14,12 +13,15 @@ MAX_STRING_TOKEN_LENGTH = 2048
 
 from typing import Any, Dict
 
-def process_prompts_common(model, tokenizer, prompt: str, schema: Dict[str, Any]) -> str:
+import json
+
+def process_prompts_common(model, tokenizer, prompt: str, schema: str) -> str:
     if not torch.cuda.is_available():
         raise Exception("This function requires a GPU on a Linux system.")
 
     merged_data = {}
-    separated_schema = JsonformerUtils.break_apart_schema(schema)
+    schema_dict = json.loads(schema)
+    separated_schema = JsonformerUtils.break_apart_schema(schema_dict)
     updated_prompt = prompt
     added_keys = set()
 
@@ -39,12 +41,9 @@ def process_prompts_common(model, tokenizer, prompt: str, schema: Dict[str, Any]
                     if key not in added_keys:
                         updated_prompt += f" {key}: {value}"
                         added_keys.add(key)
-    print(updated_prompt)
-    with tracer.start_as_current_span("jsonformer_validator"):
-        print(merged_data)
-        jsonformer_validator = Jsonformer(model, tokenizer, schema, updated_prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-        with tracer.start_as_current_span("validate_generated_data"):
-            return jsonformer_validator()
+    with tracer.start_as_current_span("process_validator"):
+        final_out = Jsonformer(model, tokenizer, new_schema, merged_data, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+        return final_out()
 
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -64,15 +63,8 @@ class Predictor(BasePredictor):
                 input_schema: str = Input(description="Input schema for the model")) -> str:
         with tracer.start_as_current_span("run_jsonformer"):
             output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
-            return output
-
-
-def gradio_interface(input_prompt, input_schema):
-    predictor = Predictor()
-    predictor.setup()
-    result = predictor.predict(input_prompt, input_schema)
-    return result
-
+            output_again_to_mix = process_prompts_common(model, tokenizer, output, input_schema)
+            return output_again_to_mix
 
 if __name__ == "__main__":
     input_prompt ="""This emote represents a catgirl face with cat ears and a happy expression."""
@@ -120,18 +112,11 @@ if __name__ == "__main__":
         },
         "required": ["name", "animation_description", "transition_trigger"]
     }"""
-    # output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
-    # print(output)
-    # output = json.dumps(output)
-    # print(output)
-    iface = gr.Interface(
-        fn=gradio_interface,
-        inputs=[
-            gr.components.Textbox(lines=3, label="Input Prompt"),
-            gr.components.Textbox(lines=5, label="Input Schema"),
-        ],
-        outputs=gr.components.JSON(label="Generated JSON"),
-        title="JSONFormer with Gradio",
-        description="Generate JSON data based on input prompt and schema.",
-        examples = [[input_prompt, input_schema]])
-    iface.launch(share=True)
+    print(input_prompt)
+    print(input_schema)
+    output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
+    print(output)
+    output = json.dumps(output)
+    print(output)
+    output = process_prompts_common(model, tokenizer, output, input_schema)
+    print(output)
