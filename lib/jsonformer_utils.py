@@ -22,7 +22,7 @@ class JsonformerUtils:
         required = schema.get("required", [])
         result = []
 
-        def process_items(item: Union[Dict[str, Any], Any], required: List[str]) -> Union[Dict[str, Any], Any]:
+        def process_items(item: Dict[str, Any]) -> Dict[str, Any]:
             if isinstance(item, dict) and "properties" in item:
                 return JsonformerUtils.break_apart_schema(item, required)
             else:
