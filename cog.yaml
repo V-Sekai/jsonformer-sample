@@ -1,0 +1,9 @@
+build:
+  gpu: true
+  python_version: "3.8"
+  system_packages:
+    - libgl1-mesa-glx
+  python_packages:
+    - torch
+    - transformers
+    - jsonschema

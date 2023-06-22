@@ -3,7 +3,7 @@
 # jsonformer_test.py
 # SPDX-License-Identifier: MIT
 
-from transformers import AutoModelForCausalLM, AutoTokenizer, T5ForConditionalGeneration
+from transformers import T5ForConditionalGeneration, AutoTokenizer
 from jsonformer import Jsonformer
 from lib.jsonformer_utils import JsonformerUtils
 from lib.test_utils import TestUtils
@@ -17,13 +17,13 @@ start_heartbeat_thread(logger, tracer)
 
 MAX_STRING_TOKEN_LENGTH = 2048
 
-def process_prompts_common(model, tokenizer, input_list):
+def process_prompts_common(model, tokenizer, input_schema_list):
     merged_data = {}
-    separated_schema = JsonformerUtils.break_apart_schema(TestUtils.get_schema())
-    validator = Draft7Validator(TestUtils.get_schema())
 
-    for prompt in input_list:
+    for prompt, schema in input_schema_list:
         logger.info(f"process_prompt: {prompt}")
+        separated_schema = JsonformerUtils.break_apart_schema(schema)
+        validator = Draft7Validator(schema)
 
         for new_schema in separated_schema:
             with tracer.start_as_current_span("process_new_schema"):
@@ -39,33 +39,20 @@ def process_prompts_common(model, tokenizer, input_list):
 
     return merged_data
 
-def initialize_model_and_tokenizer(model_name):
+def initialize_model_and_tokenizer():
+    model_name = "philschmid/flan-ul2-20b-fp16"
+    model.config.use_cache = True
+
     import torch
 
     if not torch.cuda.is_available():
         raise RuntimeError("This script requires a GPU to run.")
 
-    if "flan" in model_name:
-        model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
-    else:
-        model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+    model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     return model, tokenizer
 
-model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
-model, tokenizer = initialize_model_and_tokenizer(model_name)
-
-input_list = ["""
-    Generate a wand. It is 5 dollars.
-    """]
-process_prompts_common(model, tokenizer, input_list)
-
-model_name = "philschmid/flan-ul2-20b-fp16"
-model, tokenizer = initialize_model_and_tokenizer(model_name)
-
-model.config.use_cache = True
-
-input_list = ["""
+input_schema_list = [("""
 Sophia, an avatar creation expert, helps users craft perfect digital representations to enhance their online presence. She's currently creating a new avatar, Lily Aurora Hart, a multi-talented artist from Melbourne, Australia.
 
 Lily's 3D avatar has long purple hair, green eyes, and a futuristic outfit reflecting her passion for futurism and environmental consciousness. Her creative and ambitious personality shines through her human voice and musical talents, including playing the keyboard and synthesizer.
@@ -75,5 +62,23 @@ With the unique identifier "LAH_Music," Lily showcases skills in singing, compos
 Focusing on music content, Lily shares her work on YouTube and Twitch. Her fanbase, "Aurora Enthusiasts," supports her artistic and environmental advocacy. Collaborating with various creators, she produces engaging content and offers merchandise featuring her signature futuristic designs.
 
 Sophia's expertise will help Lily's avatar capture her essence, connect with fans, and make a difference through art and environmental advocacy.
-"""]
-process_prompts_common(model, tokenizer, input_list)
+""", PopstarUtils.get_schema()),
+("""
+    Generate a wand. It is 5 dollars.
+    """, TestUtils.get_schema())
+]
+
+process_prompts_common(input_schema_list)
+
+import cog
+
+class JsonformerTest(cog.Predictor):
+    def setup(self):
+        self.model_name = "philschmid/flan-ul2-20b-fp16"
+        self.model, self.tokenizer = initialize_model_and_tokenizer(self.model_name)
+
+    @cog.input("prompt", type=str, help="Input prompt for the model")
+    def predict(self, prompt):
+        input_list = [prompt]
+        result = process_prompts_common(input_list)
+        return result
