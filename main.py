@@ -15,35 +15,12 @@ from typing import Any, Dict
 
 import json
 
-def process_prompts_common(model, tokenizer, prompt: str, schema: str) -> str:
+def process_prompts_common(model, tokenizer, prompt: str, schema_dictionary: Dict[str, Any]) -> str:
     if not torch.cuda.is_available():
         raise Exception("This function requires a GPU on a Linux system.")
-
-    merged_data = {}
-    schema_dict = json.loads(schema)
-    separated_schema = JsonformerUtils.break_apart_schema(schema_dict)
-    updated_prompt = prompt
-    added_keys = set()
-
-    with tracer.start_as_current_span("process_schema"):
-        for new_schema in separated_schema:
-            with tracer.start_as_current_span("process_new_schema"):
-                jsonformer = Jsonformer(model, tokenizer, new_schema, updated_prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-
-            generated_data = {}
-            with tracer.start_as_current_span("jsonformer_generate"):
-                generated_data = jsonformer()
-
-            for key, value in generated_data.items():
-                if key not in merged_data:
-                    merged_data[key] = value
-                else:
-                    if key not in added_keys:
-                        updated_prompt += f" {key}: {value}"
-                        added_keys.add(key)
-    with tracer.start_as_current_span("process_validator"):
-        final_out = Jsonformer(model, tokenizer, new_schema, merged_data, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
-        return final_out()
+    with tracer.start_as_current_span("process_new_schema"):
+        jsonformer = Jsonformer(model, tokenizer, schema_dictionary, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+    return jsonformer()
 
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
@@ -67,8 +44,8 @@ class Predictor(BasePredictor):
             return output_again_to_mix
 
 if __name__ == "__main__":
-    input_prompt ="""This emote represents a catgirl face with cat ears and a happy expression."""
-    input_schema = """{
+    input_prompt_str: str ="""This emote represents a catgirl face with cat ears and a happy expression."""
+    input_schema_str: list[str]  = """{
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
         "description": "A schema representing an animation with a name, a description, and a transition trigger. The animation occurs after the specified trigger.",
@@ -112,11 +89,7 @@ if __name__ == "__main__":
         },
         "required": ["name", "animation_description", "transition_trigger"]
     }"""
-    print(input_prompt)
-    print(input_schema)
-    output = process_prompts_common(model, tokenizer, input_prompt, input_schema)
-    print(output)
-    output = json.dumps(output)
-    print(output)
-    output = process_prompts_common(model, tokenizer, output, input_schema)
+    print(input_prompt_str)
+    print(input_schema_str)
+    output = process_prompts_common(model, tokenizer, input_prompt_str, json.loads(input_schema_str))
     print(output)
