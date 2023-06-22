@@ -3,7 +3,6 @@
 # jsonformer_test.py
 # SPDX-License-Identifier: MIT
 
-from transformers import T5ForConditionalGeneration, AutoTokenizer
 from jsonformer import Jsonformer
 from jsonformer_utils import JsonformerUtils
 from jsonschema import Draft7Validator
@@ -38,15 +37,12 @@ def process_prompts_common(model, tokenizer, input_schema_list):
     return merged_data
 
 def initialize_model_and_tokenizer():
-    model_name = "philschmid/flan-ul2-20b-fp16"
+    model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
+    from transformers import AutoModelForCausalLM, AutoTokenizer
+    model = AutoModelForCausalLM.from_pretrained(model_name)
     model.config.use_cache = True
-
-    import torch
-
-    if not torch.cuda.is_available():
-        raise RuntimeError("This script requires a GPU to run.")
-
-    model = T5ForConditionalGeneration.from_pretrained(model_name, device_map="auto", load_in_8bit=True)
+    from optimum.bettertransformer import BetterTransformer
+    model = BetterTransformer.transform(model)
     tokenizer = AutoTokenizer.from_pretrained(model_name)
     return model, tokenizer
 
@@ -54,8 +50,7 @@ import cog
 
 class Predictor(cog.Predictor):
     def setup(self):
-        self.model_name = "philschmid/flan-ul2-20b-fp16"
-        self.model, self.tokenizer = initialize_model_and_tokenizer(self.model_name)
+        pass
 
     @cog.input("prompt", type=str, help="Input prompt for the model")
     def predict(self, prompt):
