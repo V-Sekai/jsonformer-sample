@@ -31,7 +31,7 @@ def process_prompts_common(model, tokenizer, prompt, schema) -> str:
     return merged_data
 
 def initialize_model_and_tokenizer():
-    model_name = "lmsys/fastchat-t5-3b-v1.0"
+    model_name = "philschmid/flan-ul2-20b-fp16"
     from transformers import AutoTokenizer, T5ForConditionalGeneration 
     model = T5ForConditionalGeneration.from_pretrained(model_name)
     model.config.use_cache = True
@@ -50,7 +50,7 @@ class Predictor(BasePredictor):
     def predict(self, 
         input_prompt: str = Input(description="Input prompt for the model"),
         input_schema: str = Input(description="Input schema for the model")) -> str:
-        output = process_prompts_common(self.model, self.tokenizer, input_prompt, input_schema)
+        output = process_prompts_common(self.model, self.tokenizer, json.loads(input_prompt), json.loads(input_schema))
         output = json.dumps(output)
         return output
 
@@ -62,15 +62,21 @@ def gradio_interface(input_prompt, input_schema):
     result = predictor.predict(input_prompt, input_schema)
     return json.loads(result)
 
+
 if __name__ == "__main__":
     iface = gr.Interface(
         fn=gradio_interface,
         inputs=[
-            gr.inputs.Textbox(lines=3, label="Input Prompt"),
-            gr.inputs.Textbox(lines=5, label="Input Schema"),
+            gr.components.Textbox(lines=3, label="Input Prompt"),
+            gr.components.Textbox(lines=5, label="Input Schema"),
         ],
-        outputs=gr.outputs.JSON(label="Generated JSON"),
+        outputs=gr.components.JSON(label="Generated JSON"),
         title="JSONFormer with Gradio",
         description="Generate JSON data based on input prompt and schema.",
+        examples=[
+            ['Generate a wand. It is 5 dollars.', '{"$schema":"http://json-schema.org/draft-07/schema#","title":"Avatar Prop","type":"object","properties":{"id":{"description":"Unique identifier for the avatar prop."}}}"'],
+        ],
     )
     iface.launch(share=True)
+
+    
