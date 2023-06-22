@@ -127,5 +127,5 @@ if __name__ == "__main__":
         outputs=gr.components.JSON(label="Generated JSON"),
         title="JSONFormer with Gradio",
         description="Generate JSON data based on input prompt and schema.",
-        examples = [[input_prompt_str, input_schema_str]])
+        examples = [[input_prompt_str, json.loads(input_schema_str)]])
     iface.launch(share=True)
