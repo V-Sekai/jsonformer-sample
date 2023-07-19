@@ -53,8 +53,7 @@ def gradio_interface(input_prompt, input_schema):
     return result
 
 if __name__ == "__main__":
-    
-    input_prompt_str = "This emote represents a catgirl face with cat ears and a happy expression."
+    input_prompt_str = "This emote represents a catgirl face with cat ears and a happy expression. Generate an animation with a name, a description, and a transition trigger based on the following schema:"
     input_schema_str = json.dumps({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
