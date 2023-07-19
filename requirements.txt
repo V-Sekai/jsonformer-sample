@@ -1,6 +1,6 @@
 torch
 transformers
-thirdparty/jsonformer
+git+https://github.com/V-Sekai/jsonformer.git@de4b2c0fbc742efce23a67d498e46802ea3453ae
 accelerate 
 bitsandbytes
 optimum
