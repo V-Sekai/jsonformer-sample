@@ -25,7 +25,9 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 model_name = "mosaicml/mpt-30b"
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
+model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", 
+  torch_dtype=torch.bfloat16,
+  trust_remote_code=True)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 from cog import BasePredictor, Input
