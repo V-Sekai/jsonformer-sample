@@ -24,7 +24,7 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
     
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
-model_name = "mosaicml/mpt-7b-8k"
+model_name = "mosaicml/mpt-30b-chat"
 model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", load_in_4bit=True)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
@@ -46,7 +46,7 @@ def gradio_interface(input_prompt, input_schema):
 
 if __name__ == "__main__":
     
-    input_prompt_str = "This emote represents a catgirl face with cat ears and a happy expression."
+    input_prompt_str = "Generate an animation with a name, a description, and a transition trigger. This emote represents a catgirl face with cat ears and a happy expression."
     input_schema_str = json.dumps({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
