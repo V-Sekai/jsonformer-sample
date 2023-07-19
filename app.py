@@ -25,12 +25,8 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
     
 
 model_name = "mosaicml/mpt-30b"
-config = transformers.AutoConfig.from_pretrained(model_name, trust_remote_code=True)
-config.init_device = 'meta'
-
 from transformers import AutoModelForCausalLM, AutoTokenizer
-model = AutoModelForCausalLM.from_pretrained(model_name, 
-  config=config,
+model = AutoModelForCausalLM.from_pretrained(model_name,
   device_map="auto", 
   torch_dtype=torch.bfloat16,
   trust_remote_code=True)
