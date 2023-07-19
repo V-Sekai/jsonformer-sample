@@ -3,12 +3,13 @@
 # jsonformer_test.py
 # SPDX-License-Identifier: MIT
 
+import transformers
 from jsonformer import Jsonformer
 from lib.generator_utils import setup_tracer
 import json, torch
 
 tracer = setup_tracer()
-MAX_STRING_TOKEN_LENGTH = 8192
+MAX_STRING_TOKEN_LENGTH = 16384
 
 from typing import Any, Dict
 
@@ -23,9 +24,17 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
             return jsonformer()
     
 
+config = transformers.AutoConfig.from_pretrained(name, trust_remote_code=True)
+config.attn_config['attn_impl'] = 'triton'  # change this to use triton-based FlashAttention
+config.init_device = 'cuda:0' # For fast initialization directly on GPU!
+
 from transformers import AutoModelForCausalLM, AutoTokenizer
 model_name = "mosaicml/mpt-30b"
-model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto", load_in_4bit=True)
+model = AutoModelForCausalLM.from_pretrained(model_name, 
+  config=config,
+  device_map="auto", 
+  torch_dtype=torch.bfloat16,
+  trust_remote_code=True)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
 from cog import BasePredictor, Input
@@ -45,7 +54,6 @@ def gradio_interface(input_prompt, input_schema):
     return result
 
 if __name__ == "__main__":
-    
     input_prompt_str = "This emote represents a catgirl face with cat ears and a happy expression. Generate an animation with a name, a description, and a transition trigger based on the following schema:"
     input_schema_str = json.dumps({
         "$schema": "http://json-schema.org/draft-07/schema#",

@@ -1,9 +1,22 @@
+---
+title: Tool Form Filler
+emoji:
+  '[object Object]': null
+colorFrom:
+  '[object Object]': null
+colorTo:
+  '[object Object]': null
+sdk: gradio
+app_file: app.py
+pinned: false
+license: apache-2.0
+---
 # Installation and Running the Jsonformer Sample
 
 This sample has both cog and gradio for future [Replicate](https://replicate.com) and [Hugging Face](https://huggingface.co/) support.
 
 ```bash
-python main.py
+python app.py
 ```
 
 ## References
