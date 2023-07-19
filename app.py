@@ -3,6 +3,7 @@
 # jsonformer_test.py
 # SPDX-License-Identifier: MIT
 
+import transformers
 from jsonformer import Jsonformer
 from lib.generator_utils import setup_tracer
 import json, torch
