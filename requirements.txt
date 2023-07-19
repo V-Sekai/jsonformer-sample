@@ -9,4 +9,4 @@ opentelemetry-sdk
 gradio
 scipy
 cog
-einops
+einops==0.6.1

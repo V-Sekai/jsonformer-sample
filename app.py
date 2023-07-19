@@ -58,7 +58,7 @@ if __name__ == "__main__":
     input_schema_str = json.dumps({
         "$schema": "http://json-schema.org/draft-07/schema#",
         "type": "object",
-        "description": "A schema representing an animation with a name, a description, and a transition trigger. The animation occurs after the specified trigger.",
+        "description": "This emote represents a catgirl face with cat ears and a happy expression based on the following schema:",
         "properties": {
             "name": {
                 "type": "string",
