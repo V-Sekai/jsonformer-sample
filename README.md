@@ -1,3 +1,14 @@
+---
+title: {{title}}
+emoji: {{emoji}}
+colorFrom: {{colorFrom}}
+colorTo: {{colorTo}}
+sdk: {{sdk}}
+sdk_version: {{sdkVersion}}
+app_file: app.py
+pinned: false
+---
+
 # Installation and Running the Jsonformer Sample
 
 This sample has both cog and gradio for future [Replicate](https://replicate.com) and [Hugging Face](https://huggingface.co/) support.
