@@ -24,7 +24,7 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
             return jsonformer()
     
 
-model_name = "mosaicml/mpt-30b"
+model_name = "mosaicml/mpt-7b-8k"
 from transformers import AutoModelForCausalLM, AutoTokenizer
 model = AutoModelForCausalLM.from_pretrained(model_name,
   device_map="auto", 
