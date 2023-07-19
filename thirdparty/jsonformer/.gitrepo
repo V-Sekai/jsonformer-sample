@@ -6,7 +6,7 @@
 [subrepo]
 	remote = https://github.com/V-Sekai/jsonformer.git
 	branch = next
-	commit = 98d9f04bad60b445624020a3ab00702e0366381d
-	parent = 3733adfc973c9dd56a05fc6ca573c829c60772a7
+	commit = de4b2c0fbc742efce23a67d498e46802ea3453ae
+	parent = 393d335626ea521e0bee5d1ae9988d9981277a01
 	method = merge
 	cmdver = 0.4.6
