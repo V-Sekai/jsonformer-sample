@@ -8,7 +8,7 @@ from lib.generator_utils import setup_tracer
 import json, torch
 
 tracer = setup_tracer()
-MAX_STRING_TOKEN_LENGTH = 2048
+MAX_STRING_TOKEN_LENGTH = 16384
 
 from typing import Any, Dict
 
