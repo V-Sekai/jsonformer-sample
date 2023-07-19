@@ -28,9 +28,6 @@ model_name = "mosaicml/mpt-7b-8k"
 model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
-from optimum.bettertransformer import BetterTransformer
-model = BetterTransformer.transform(model)
-
 from cog import BasePredictor, Input
 
 
