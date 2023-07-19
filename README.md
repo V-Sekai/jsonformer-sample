@@ -3,8 +3,7 @@ title: {{title}}
 emoji: {{emoji}}
 colorFrom: {{colorFrom}}
 colorTo: {{colorTo}}
-sdk: {{sdk}}
-sdk_version: {{sdkVersion}}
+sdk: "gradio"
 app_file: app.py
 pinned: false
 ---
