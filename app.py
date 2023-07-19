@@ -20,7 +20,8 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
         raise Exception("This function requires a GPU on a Linux system.")
     with tracer.start_as_current_span("process_schema"):
         with tracer.start_as_current_span("process_new_schema"):
-            jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
+            jsonformer = Jsonformer(model, tokenizer, schema, prompt,
+                                    max_string_token_length=MAX_STRING_TOKEN_LENGTH, max_array_length=MAX_STRING_TOKEN_LENGTH, max_number_tokens=MAX_STRING_TOKEN_LENGTH)
             return jsonformer()
 
 from transformers import BitsAndBytesConfig
@@ -59,7 +60,35 @@ def gradio_interface(input_prompt, input_schema):
 
 if __name__ == "__main__":
     input_prompt_str = "This emote represents a catgirl face with cat ears. Generate an animation set with a name, a description, and a transition trigger based on the following schema:"
-    input_schema_str = json.dumps({"$schema": "http://json-schema.org/draft-07/schema#", "type": "object", "properties": {"name": {"type": "string", "minLength": 3, "maxLength": 10, "description": "The name of the animation, between 3 and 10 characters long."}, "animation_description": {"type": "string", "minLength": 10, "maxLength": 100, "description": "A brief description of the animation."}, "transition_trigger": {"type": "object", "description": "A trigger for transitioning between animations in the animation tree. The animation occurs after this trigger.", "properties": {"trigger_condition": {"minLength": 5, "maxLength": 10, "type": "string", "description": "The condition that must be met for the transition to occur."}, "from_animation": {"minLength": 5, "maxLength": 10, "type": "string", "description": "The name of the animation to transition from."}, "to_animation": {"minLength": 5, "maxLength": 10, "type": "string", "description": "The name of the animation to transition to."}}, "required": ["trigger_condition", "from_animation", "to_animation"]}}, "required": ["name", "animation_description", "transition_trigger"]})
+    input_schema_str = json.dumps({
+    "$schema": "http://json-schema.org/draft-07/schema#",
+    "type": "object",
+    "properties": {
+        "name": {
+        "type": "string",
+        },
+        "animation_description": {
+        "type": "string",
+        },
+        "transition_trigger": {
+        "type": "object",
+        "properties": {
+            "trigger_condition": {
+            "type": "string",
+            },
+            "from_animation": {
+            "type": "string",
+            },
+            "to_animation": {
+            "type": "string",
+            }
+        },
+        "required": ["trigger_condition", "from_animation", "to_animation"]
+        }
+    },
+    "required": ["name", "animation_description", "transition_trigger"]
+    })
+
 
     import gradio as gr
     iface = gr.Interface(
