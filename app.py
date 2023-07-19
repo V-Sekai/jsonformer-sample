@@ -22,13 +22,21 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
         with tracer.start_as_current_span("process_new_schema"):
             jsonformer = Jsonformer(model, tokenizer, schema, prompt, max_string_token_length=MAX_STRING_TOKEN_LENGTH)
             return jsonformer()
-    
+
+from transformers import BitsAndBytesConfig
+
+nf4_config = BitsAndBytesConfig(
+   load_in_4bit=True,
+   bnb_4bit_quant_type="nf4",
+   bnb_4bit_use_double_quant=True,
+   bnb_4bit_compute_dtype=torch.bfloat16
+)
 
 model_name = "mosaicml/mpt-7b-8k"
 from transformers import AutoModelForCausalLM, AutoTokenizer
 model = AutoModelForCausalLM.from_pretrained(model_name,
-  load_in_4bit=True, 
   device_map="auto", 
+  quantization_config=nf4_config,
   trust_remote_code=True)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model.tie_weights()
