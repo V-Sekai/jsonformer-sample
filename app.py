@@ -27,7 +27,6 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
 model_name = "mosaicml/mpt-30b"
 config = transformers.AutoConfig.from_pretrained(model_name, trust_remote_code=True)
 config.attn_config['attn_impl'] = 'triton'  # change this to use triton-based FlashAttention
-config.init_device = 'cuda:0' # For fast initialization directly on GPU!
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
 model = AutoModelForCausalLM.from_pretrained(model_name, 
