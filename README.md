@@ -9,7 +9,7 @@ colorTo:
 sdk: gradio
 app_file: app.py
 pinned: false
-license: apache-2.0
+license: mit
 ---
 # Installation and Running the Jsonformer Sample
 
