@@ -24,7 +24,7 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
     
 
 from transformers import AutoModelForCausalLM, AutoTokenizer
-model_name = "ethzanalytics/dolly-v2-12b-sharded-8bit"
+model_name = "mosaicml/mpt-7b-8k-instruct"
 model = AutoModelForCausalLM.from_pretrained(model_name, device_map="auto")
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 
