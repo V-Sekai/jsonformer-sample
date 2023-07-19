@@ -9,7 +9,7 @@ from lib.generator_utils import setup_tracer
 import json, torch
 
 tracer = setup_tracer()
-MAX_STRING_TOKEN_LENGTH = 16384
+MAX_STRING_TOKEN_LENGTH = 8192
 
 from typing import Any, Dict
 
@@ -27,8 +27,8 @@ def process_prompts_common(model: Any, tokenizer: Any, prompt: str, schema: Dict
 model_name = "mosaicml/mpt-7b-8k"
 from transformers import AutoModelForCausalLM, AutoTokenizer
 model = AutoModelForCausalLM.from_pretrained(model_name,
+  load_in_4bit=True, 
   device_map="auto", 
-  torch_dtype=torch.bfloat16,
   trust_remote_code=True)
 tokenizer = AutoTokenizer.from_pretrained(model_name)
 model.tie_weights()
