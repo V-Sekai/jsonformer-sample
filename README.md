@@ -3,7 +3,7 @@
 This sample has both cog and gradio for future [Replicate](https://replicate.com) and [Hugging Face](https://huggingface.co/) support.
 
 ```bash
-python main.py
+python app.py
 ```
 
 ## References
